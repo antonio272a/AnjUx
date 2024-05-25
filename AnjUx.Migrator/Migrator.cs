@@ -21,7 +21,7 @@ namespace AnjUx.Migrator
 		{
 			// Verifica se existe uma base com o nome
 			// informado e a cria caso não exista.
-			CriarBaseDeDadosSeNaoExistir();
+				CriarBaseDeDadosSeNaoExistir();
 
 			// Cria os serviços e atualiza a base de dados
 			var serviceProvider = CriarServicos();
