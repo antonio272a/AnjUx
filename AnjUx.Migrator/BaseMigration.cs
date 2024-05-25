@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AnjUx.Migrator
 {
-	internal abstract class BaseMigration : Migration
+	public abstract class BaseMigration : Migration
 	{
 		protected void ColunaIndexadaComMultiplosNulos(string tabela, string coluna, string? esquema = null)
 		{
