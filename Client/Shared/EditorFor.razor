@@ -1,0 +1,662 @@
+﻿@using System.Linq.Expressions
+@using System.Reflection
+@using System.ComponentModel
+@using System.Collections;
+@using AnjUx.Client.Services
+@using AnjUx.Shared.Extensions
+@using AnjUx.Shared.Interfaces
+@using AnjUx.Shared.Attributes;
+@using System.Text;
+@using System.Dynamic;
+@using System.ComponentModel.DataAnnotations;
+@using Microsoft.AspNetCore.Components.Forms
+@using Radzen
+@using Radzen.Blazor
+@inject EditorForService EditorForService
+@inject TooltipService tooltipService
+@inherits ComponentBase
+@implements IDisposable
+@typeparam TModel
+@typeparam TValue
+
+
+<CoreCol JustifyContent="AnjUx.Client.Shared.JustifyContent.Start" Style="@($"margin-bottom: 0.25rem; {Style}")">
+    @if (Type.GetTypeCode(innerType) == TypeCode.Boolean)
+    {
+        <RadzenStack MouseEnter="(args) => ShowTooltip(args)" MouseLeave="() => HideTooltip()" Style="margin-top: 0.625rem;" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center">
+            <RadzenSwitch Disabled="@(ReadOnly || Disabled)" @bind-Value="@BoolValue" />
+            <RadzenLabel Text="@displayName" />
+        </RadzenStack>
+    }
+    else
+    {
+        <RadzenFormField MouseEnter="(args) => ShowTooltip(args)" MouseLeave="() => HideTooltip()" Style="width: 100%" Text="@displayName">
+            @if (isEnum)
+            {
+                if (!isEnumerable)
+                {
+                    // Enum objeto direto
+                    <RadzenDropDown ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@PropValue" AllowFiltering="true" Data="@listData" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" SelectedItemChanged="@SelectedItemChanged" Change="@Change" AllowClear="@AllowClear">
+                        <ValueTemplate Context="data">
+                            @((data as Enum)!.GetDescriptionEnum())
+                        </ValueTemplate>
+                        <Template Context="data">
+                            @((data as Enum)!.GetDescriptionEnum())
+                        </Template>
+                    </RadzenDropDown>
+                }
+                else
+                {
+                    // Enumerable de Enum
+                    <RadzenDropDown ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@ListValue" AllowFiltering="true" Data="@listData" Multiple="true" Chips="true" MaxSelectedLabels="50" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" SelectedItemChanged="@SelectedItemChanged" Change="@Change" AllowClear="@AllowClear">
+                        <ValueTemplate Context="data">
+                            @((data as Enum)!.GetDescriptionEnum())
+                        </ValueTemplate>
+                        <Template Context="data">
+                            @((data as Enum)!.GetDescriptionEnum())
+                        </Template>
+                    </RadzenDropDown>
+                }
+            }
+            else if (Password)
+            {
+                <RadzenPassword ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value=@StringValue />
+            }
+            else
+            {
+                @switch (Type.GetTypeCode(innerType))
+                {
+                    case TypeCode.Object:
+                        if (isDbModel || isOtherClass)
+                        {
+                            if (!isEnumerable)
+                            {
+                                // DbModel objeto direto
+                                <RadzenDropDown ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@PropValue" AllowFiltering="true" Data="@listData" LoadData="@LoadModelData" SelectedItemChanged="@SelectedItemChanged" Change="@Change" AllowClear="@AllowClear">
+                                    <Template Context="dropDownContext">
+                                        <div @key="@listData">
+                                            @GetDropDownText(dropDownContext)
+                                        </div>
+                                    </Template>
+                                </RadzenDropDown>
+                            }
+                            else
+                            {
+                                // Enumerable de DbModel
+                                <RadzenDropDown ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@ListValue" AllowFiltering="true" Data="@listData" LoadData="@LoadModelData" Multiple="true" Chips="true" MaxSelectedLabels="50" SelectedItemChanged="@SelectedItemChanged" Change="@Change" AllowClear="@AllowClear">
+                                    <Template Context="dropDownContext">
+                                        <div @key="@listData">
+                                            @GetDropDownText(dropDownContext)
+                                        </div>
+                                    </Template>
+                                </RadzenDropDown>
+                            }
+                        }
+                        else
+                        {
+                            // Apenas Enums, DbModels e seus derivados podem ser tratados neste componente no momento
+                            throw new InvalidOperationException("Only DbModel and Human Primitive Types can be used in EditorFors.");
+                        }
+                        break;
+
+                    case TypeCode.Boolean:
+                        // Booleans são tratados posteriormente, se chegar aqui sendo um boolean, algo de errado não está certo!
+                        throw new InvalidOperationException("Unexpected state reached.");
+
+                    case TypeCode.Int16:
+                    case TypeCode.UInt16:
+                    case TypeCode.Int32:
+                    case TypeCode.UInt32:
+                    case TypeCode.Int64:
+                    case TypeCode.UInt64:
+                    case TypeCode.Single:
+                    case TypeCode.Double:
+                    case TypeCode.Decimal:
+                        <RadzenNumeric ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@PropValue" Format="@Format" />
+                        // TODO: MASK
+                        break;
+
+                    case TypeCode.DateTime:
+                        <RadzenDatePicker ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@PropValue" DateFormat="@DateTimeFormat" ShowTime=true ShowSeconds=true />
+                        // TODO: MASK
+                        break;
+
+                    case TypeCode.Char:
+                        <RadzenTextBox ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@StringValue" MaxLength="1" />
+                        break;
+
+                    case TypeCode.String:
+                        <RadzenTextBox ReadOnly="@ReadOnly" Disabled="@Disabled" Style="width: 100%" @bind-Value="@StringValue" />
+                        // TODO: MASK
+                        break;
+
+                    case TypeCode.SByte:
+                    case TypeCode.Byte:
+                    case TypeCode.DBNull:
+                    case TypeCode.Empty:
+                    default:
+                        throw new ApplicationException($"Property Type {typeof(TValue).Name} does not have a component to render in EditorFor.");
+                }
+            }
+        </RadzenFormField>
+    }
+</CoreCol>
+
+@code {
+    #region Parameters
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [CascadingParameter]
+    private CoreForm<TModel>? ParentCoreForm { get; set; }
+
+    [CascadingParameter]
+    public CoreContext<TModel>? ParentCoreContext { get; set; }
+
+    [CascadingParameter]
+    public TModel? Model { get; set; }
+
+    [Parameter]
+    public Expression<Func<TModel, TValue>>? Property { get; set; }
+
+    [Parameter]
+    public Expression<Func<TModel, List<TValue>>>? PropertyList { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public bool Password { get; set; } = false;
+
+    [Parameter]
+    public string DateTimeFormat { get; set; } = "dd/MM/yyyy hh:mm:ss";
+
+    [Parameter]
+    public Action<object>? SelectedItemChanged { get; set; }
+
+    [Parameter]
+    public Action<object>? Change { get; set; }
+
+    [Parameter]
+    public string? SearchRoute { get; set; }
+
+    [Parameter]
+    public string? TextProperty { get; set; }
+
+    [Parameter]
+    public string? ValueProperty { get; set; }
+
+    [Parameter]
+    public bool AllowClear { get; set; } = true;
+
+    [Parameter]
+    public string? Tooltip { get; set; }
+
+    [Parameter]
+    public string? Format { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    #endregion Parameters
+
+    #region Fields
+
+    private PropertyInfo? propertyInfo;
+    private string? displayName;
+    private bool isDbModel = false;
+    private bool isOtherClass = false;
+    private Type? innerType;
+    private bool isEnumerable = false;
+    private bool isEnum = false;
+    private List<PropertyInfo>? searchProps;
+    private bool usingDefaultSearchRoute = false;
+
+    // For DbModel DropDown
+    private List<TValue>? listData;
+
+    #endregion Fields
+
+    #region DropDowns
+
+    public delegate Task<List<TValue>> SearchServiceMethod(TModel? model, string? filter);
+
+    [Parameter]
+    public SearchServiceMethod? SearchMethod { get; set; }
+
+    private async Task LoadModelData(LoadDataArgs args)
+    {
+        List<TValue> serverList;
+
+        if (SearchMethod == null)
+        {
+            string filter = string.Empty;
+            if (!string.IsNullOrWhiteSpace(args.Filter))
+            {
+                filter = $"?filter={args.Filter}";
+            }
+
+            if (usingDefaultSearchRoute)
+            {
+                string join = filter.Contains('?') ? "&" : "?";
+                filter += $"{join}typeName={typeof(TValue).FullName}";
+            }
+
+            serverList = await EditorForService.Search<TValue>($"{SearchRoute}{filter}");
+        }
+        else
+        {
+            serverList = await SearchMethod.Invoke(Model, args.Filter);
+        }
+
+        List<TValue> result = new List<TValue>();
+
+        if (ListValue != null && serverList != null)
+        {
+            if (isDbModel && string.IsNullOrWhiteSpace(ValueProperty))
+            {
+                foreach (var dbItem in serverList)
+                {
+                    TValue? selected = ListValue.FirstOrDefault(x => (x as IDbModel)!.GetDbHashCodeForDropdown() == (dbItem as IDbModel)!.GetDbHashCodeForDropdown());
+                    if (selected != null)
+                        result.Add(selected);
+                    else
+                        result.Add(dbItem);
+                }
+            }
+            else
+            {
+                PropertyInfo valueProp = typeof(TValue).GetProperty(ValueProperty!)!;
+                foreach (var item in serverList)
+                {
+                    TValue? selected = ListValue.FirstOrDefault(x => valueProp.GetValue(x) == valueProp.GetValue(item));
+                    if (selected != null)
+                        result.Add(selected);
+                    else
+                        result.Add(item);
+                }
+            }
+        }
+        else
+        {
+            result = serverList!;
+        }
+
+        listData = result;
+    }
+
+    #endregion DropDowns
+
+    private string? toolTipAttribute = null;
+
+
+    private void ShowTooltip(ElementReference elementReference, TooltipOptions? options = null)
+    {
+        string? tooltip = Tooltip;
+
+        if (tooltip.IsNullOrWhiteSpace())
+        {
+            // Aqui temos uma validação para buscarmos via Atributo 1 única vez
+            // Caso a prop seja nula, significa que ainda não buscamos
+            // Caso tenha algo, nem que seja uma string vazia, significa que já buscamos
+            if (toolTipAttribute == null)
+            {
+                toolTipAttribute = string.Empty;
+
+                if (propertyInfo == null) return;
+
+                DisplayAttribute? attr = propertyInfo.GetCustomAttribute<DisplayAttribute>();
+
+                if (attr == null) return;
+
+                toolTipAttribute = attr.Description;
+                tooltip = toolTipAttribute;
+            }
+            else
+                tooltip = toolTipAttribute;
+
+            if (tooltip.IsNullOrWhiteSpace()) return;
+        };
+
+        options = new()
+            {
+                Duration = null,
+                Style = "background-color: #f5f5f5; color: #000; box-shadow: 0 0 0.5rem #000"
+            };
+
+        tooltipService.Open(elementReference, tooltip, options);
+    }
+
+    private void HideTooltip()
+    {
+        tooltipService.Close();
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        // Pega o tipo interno e externo para os casos de Nullable e Enumarables
+        innerType = ExposeTypes(typeof(TValue));
+        if (PropertyList != null) isEnumerable = true; //Preencheu o List, é necessariamente Enumerable
+
+        // Pega os dados da Property
+        if (isEnumerable)
+        {
+            // Validar se foi passado a PropertyList corretamente, nos casos de listas
+            if (PropertyList == null) throw new ArgumentException($"PropertyList is null and the Property it is a List<>. Use PropertyList instead of Property for Lists.");
+
+            var memberExpression = (MemberExpression)PropertyList.Body;
+            propertyInfo = (PropertyInfo)memberExpression.Member;
+
+            // Armazena como DbModel e guarda o Valor Original
+            //if (ListValue != null && isDbModel) DbModelListValue = (ListValue as List<DbModel>)!;
+            OriginalListValue = ListValue;
+        }
+        else
+        {
+            // Validar se foi passado a Property
+            if (Property == null) throw new ArgumentException($"Property is null in EditorFor. Property or PropertyList MUST be filled to use EditorFor.");
+
+            Expression body = Property.Body;
+
+            if (body is UnaryExpression unary)
+                body = unary.Operand;
+
+            var memberExpression = (MemberExpression)body;
+            propertyInfo = (PropertyInfo)memberExpression.Member;
+
+            // Armazena como DbModel e guarda o Valor Original
+            //if (PropValue != null && isDbModel) DbModelValue = (PropValue as DbModel)!;
+            OriginalValue = PropValue!;
+        }
+
+        // Se for DbModel, buscar a SearchRoute
+        if (isDbModel || isOtherClass) GetSearchRoute();
+
+        // Monta o DisplayName
+        displayName = GetDisplayName();
+
+        // Se for Enum, já monta os dados do Enum
+        if (isEnum) ThreatEnum();
+
+        // Registra este EditorFor no Form que ele está inserido para depois poder executar o Reset em massa de todos os EditorFors que estão dentro do Form
+        ParentCoreForm?.RegisterEditor(this);
+
+        // Validar para Password poder ser apenas campos strings
+        if (Type.GetTypeCode(typeof(TValue)) != TypeCode.String && Password) throw new ArgumentException("Passwords should be specified as strings.", displayName);
+
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        // Desregistra este EditorFor no Form que ele está inserido
+        ParentCoreForm?.UnregisterEditor(this);
+    }
+
+    public void Reset()
+    {
+        if (isEnumerable)
+            ListValue = OriginalListValue!;
+        else
+            PropValue = OriginalValue;
+    }
+
+    private string GetDisplayName()
+    {
+        if (!Label.IsNullOrEmpty()) return Label;
+        var displayAttribute = propertyInfo!.GetCustomAttribute<DisplayAttribute>();
+        return displayAttribute?.Name ?? propertyInfo!.Name;
+    }
+
+    private Type ExposeTypes(Type type)
+    {
+        var exposedType = type;
+
+        // Check if the type is nullable and get the underlying type
+        var nullableUnderlyingType = Nullable.GetUnderlyingType(exposedType);
+        if (nullableUnderlyingType != null)
+        {
+            exposedType = nullableUnderlyingType;
+        }
+
+        // Check if the type is an array
+        if (exposedType.IsArray)
+        {
+            exposedType = ExposeTypes(exposedType.GetElementType()!);
+            isEnumerable = true;
+        }
+
+        // Check if the type is a generic collection IEnumerable<T>
+        if (exposedType.IsGenericType)
+        {
+            Type genericTypeDefinition = exposedType.GetGenericTypeDefinition();
+            if (genericTypeDefinition.IsAssignableTo(typeof(IEnumerable)))
+            {
+                exposedType = ExposeTypes(exposedType.GetGenericArguments()[0]);
+                isEnumerable = true;
+            }
+        }
+
+        // Check if the type is an enum
+        if (exposedType.IsEnum)
+        {
+            isEnum = true;
+        }
+
+        // Identifica se o tipo interno é um DbModel
+        isDbModel = exposedType.GetInterfaces().Any(i => i == typeof(IDbModel));
+
+        // Check is the type is a class, if it is not a DbModel
+        if (!isEnumerable && !exposedType.IsHumanPrimitive() && !isDbModel) isOtherClass = exposedType.IsClass;
+
+        // Check if exposedType is a human primitive type or DbModel
+        if (!isEnumerable && !exposedType.IsHumanPrimitive() && !isDbModel && !isOtherClass)
+        {
+            throw new ArgumentException("Property should be a DBModel, a Class, a Human Primitive Type or a Nullable, an Enumerable or an Array of those types.");
+        }
+
+        return exposedType;
+    }
+
+    private void ThreatEnum()
+    {
+        listData = Enum.GetValues(innerType!).Cast<TValue>().Where(e => (e as Enum)!.GetDisplayAutoGenerateField()).ToList();
+    }
+
+    private void GetSearchRoute()
+    {
+        if (SearchMethod != null) return;
+
+        SearchRouteAttribute? searchRouteAttribute = innerType!.GetCustomAttribute<SearchRouteAttribute>();
+        string attSearchRoute = string.Empty;
+        string attTextProperty = string.Empty;
+        string attValueProperty = string.Empty;
+
+        if (searchRouteAttribute != null)
+        {
+            attSearchRoute = searchRouteAttribute.Route;
+            attTextProperty = searchRouteAttribute.TextProperty!;
+            attValueProperty = searchRouteAttribute.ValueProperty!;
+        }
+
+        if (string.IsNullOrWhiteSpace(SearchRoute))
+        {
+            if (!string.IsNullOrWhiteSpace(attSearchRoute))
+                SearchRoute = attSearchRoute;
+            else if (!CoreClientConfig.Instance.BaseGenericSearchUrl.IsNullOrWhiteSpace())
+            {
+                SearchRoute = CoreClientConfig.Instance.BaseGenericSearchUrl;
+                usingDefaultSearchRoute = true;
+            }
+            else
+                throw new ArgumentException($"SearchRoute attribute not found on the class {innerType!.Name}. EditorFor for DbModel/Class requires: SearchRoute attribute, SearchRoute or SearchMethod and TextProperty filled.");
+        }
+
+        if (string.IsNullOrWhiteSpace(TextProperty))
+        {
+            if (!string.IsNullOrWhiteSpace(attTextProperty))
+            {
+                TextProperty = attTextProperty;
+            }
+            else
+            {
+                // Busca as propriedades que tem o SearchProps definido já ordenado, se existir
+                searchProps = new List<PropertyInfo>();
+                var props = typeof(TValue).GetProperties();
+                Dictionary<int, PropertyInfo> searchPropsDict = new Dictionary<int, PropertyInfo>();
+                foreach (var prop in props)
+                {
+                    var sdAtt = prop.GetCustomAttribute<SearchDisplayAttribute>();
+                    if (sdAtt != null)
+                        searchPropsDict.Add(sdAtt.Order, prop);
+                }
+
+                if (!searchPropsDict.IsNullOrEmpty())
+                {
+                    var keys = searchPropsDict.Keys.Order().ToList();
+
+                    foreach (var key in keys)
+                        searchProps.Add(searchPropsDict[key]);
+                }
+
+                if (searchProps == null || !searchProps.Any())
+                {
+                    throw new ArgumentException($"SearchRoute attribute not found on the class {innerType!.Name}. EditorFor for DbModel requires: SearchRoute attribute, SearchRoute or SearchMethod and TextProperty filled.");
+                }
+            }
+        }
+
+        // Caso searchProps não tenha sido preenchida pelo SearchDisplay, então usa o TextProperty
+        if ((searchProps == null || !searchProps.Any()) && !string.IsNullOrWhiteSpace(TextProperty))
+        {
+            searchProps = new List<PropertyInfo> { typeof(TValue).GetProperty(TextProperty)! };
+        }
+
+        // Busca a propriedade para comparação entre os itens (ValueProperty)
+        if (string.IsNullOrWhiteSpace(ValueProperty) && !string.IsNullOrWhiteSpace(attValueProperty))
+        {
+            ValueProperty = attValueProperty;
+        }
+
+        // Valida se for uma classe qualquer e não tiver o ValueProperty, não tem como comparar entre eles, pois não sabemos como comparar para saber se é o mesmo item
+        if (isOtherClass && string.IsNullOrEmpty(ValueProperty))
+        {
+            throw new ArgumentException($"ValueProperty was not find in SearchRoute for the Class {innerType!.FullName}. Only DbModels can use implicit ValueProperty.");
+        }
+    }
+
+    private string GetDropDownText(TValue item)
+    {
+        string result;
+        var values = searchProps!.Select(p => p.GetValue(item));
+
+        if (values != null && values.Any())
+        {
+            result = string.Join(" ", values);
+        }
+        else
+        {
+            // Se entrar aqui, DEU RUIM
+            result = item!.ToString()!;
+        }
+
+        return result;
+    }
+
+    #region Internal Properties for the Value
+
+    private TValue? OriginalValue { get; set; }
+
+    private TValue? PropValue
+    {
+        get
+        {
+            try
+            {
+                return Property == null ? default : Property.Compile()(Model!);
+            }
+            catch (Exception)
+            {
+                return default;
+            }
+        }
+        set
+        {
+            propertyInfo!.SetValue(Model, value);
+        }
+    }
+
+    private string? StringValue
+    {
+        get
+        {
+            try
+            {
+                return (string?)propertyInfo!.GetValue(Model);
+
+            }
+            catch (Exception)
+            {
+                return "Não Informado";
+            }
+        }
+        set
+        {
+            propertyInfo!.SetValue(Model, value);
+        }
+    }
+
+    private bool BoolValue
+    {
+        get
+        {
+            try
+            {
+                return (bool?)propertyInfo!.GetValue(Model) ?? false;
+            }
+            catch (Exception)
+            {
+                return default;   
+            }
+        }
+        set
+        {
+            propertyInfo!.SetValue(Model, value);
+        }
+    }
+
+    #endregion Internal Properties for the Value
+
+    #region Internal Properties for the ListValue
+
+    private List<TValue>? OriginalListValue { get; set; }
+
+    private List<TValue>? ListValue
+    {
+        get
+        {
+            try
+            {
+                return PropertyList?.Compile()(Model!);
+
+            }
+            catch (Exception)
+            {
+                return default;   
+            }
+        }
+        set
+        {
+            propertyInfo!.SetValue(Model, value);
+        }
+    }
+
+    #endregion Internal Properties for the ListValue
+}

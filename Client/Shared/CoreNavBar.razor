@@ -1,0 +1,55 @@
+﻿@using AnjUx.Client.Extensions
+@using AnjUx.Client.Stores
+@inject CoreNavBarStore navBarStore
+@inject NavigationManager navigation
+
+<div style="width: 100%">
+    @Header
+    <div style="width: 100%; background-color: white; display: flex; align-items: center; justify-content: space-between;">
+        <div style="@TituloStyle">
+            @Titulo
+        </div>
+        <div style="padding-right: 1rem; display: flex; align-items: center; padding: 0.25rem 0; margin-right: 2rem;">
+            @foreach (CoreNavBarItem item in Itens)
+            {
+                <CoreButton @key="item.Tooltip" Icon="@item.Icone" ToolTip="@item.Tooltip" Click="() => HandleClick(item)" Size="ButtonSize.Small" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? Header { get; set; }
+
+    [Parameter]
+    public string TituloStyle { get; set; } = "font-size: 1.3rem;font-weight: 700;margin-left: 2rem;color: #222222;";
+
+    private List<CoreNavBarItem> Itens { get; set; } = [];
+    private string? Titulo { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        navBarStore.AddListener(SetNavBar);
+        SetNavBar();
+
+        return base.OnInitializedAsync();
+    }
+
+    private void SetNavBar()
+    {
+        Itens = navBarStore.ItensNavBar.ToList();
+        Titulo = navBarStore.Titulo;
+        StateHasChanged();
+    }
+
+    private void HandleClick(CoreNavBarItem item)
+    {
+        if (item.Acao != null)
+            item.Acao.Invoke();
+        else if (item.Componente != null)
+            navigation.IrPara(item.Componente);
+        else
+            navigation.IrPara(item.View!, item.Contexto, item.Area);
+    }
+}

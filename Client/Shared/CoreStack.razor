@@ -1,0 +1,11 @@
+﻿@using Radzen.Blazor
+@inherits ComponentBase
+
+<RadzenStack>
+    @ChildContent
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

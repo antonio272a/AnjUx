@@ -1,0 +1,87 @@
+@inject Radzen.TooltipService tooltipService
+
+<div>
+    <CascadingValue Name="RepresentsToolbar" Value="true">
+        <CoreButton @ref=Button Icon="Icon.Settings" Size="ButtonSize.ExtraSmall" Click="OpenToolbar" />
+    </CascadingValue>
+    @if (OrderActions)
+    {
+        <div style="display: none; visibility: hidden">@ChildContent</div>
+    }
+</div>
+
+@code {
+    private CoreButton? Button { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public List<CoreButton> Buttons { get; set; }
+
+    [Parameter]
+    public bool OrderActions { get; set; }
+
+    private void OpenToolbar()
+    {
+        Radzen.TooltipOptions options = new()
+                {
+                    Duration = null,
+                    CloseTooltipOnDocumentClick = true,
+                    Position = Radzen.TooltipPosition.Left,
+                    Style = "background-color: #f5f5f5; color: #000; border: 1px solid #000; border-radius: 0.5rem; box-shadow: 0 0 0.5rem #000; transform: translateY(-20px)",
+                };
+
+
+        if (OrderActions)
+        {
+            tooltipService.Open(
+            Button!.Element,
+            ds => @<div style="display: flex; align-items: center; justify-content: space-around;">
+                    <CascadingValue Name="InsideToolbar" Value="true" IsFixed>
+                        @CreateDynamicButtons()
+                    </CascadingValue>
+                </div>,
+                options
+            );
+        }
+        else
+        {
+            tooltipService.Open(
+            Button!.Element,
+            ds => @<div style="display: flex; align-items: center; justify-content: space-around;">
+                    <CascadingValue Name="InsideToolbar" Value="true" IsFixed>
+                        @ChildContent
+                    </CascadingValue>
+                </div>,
+                options
+            );
+        }
+
+    }
+
+    private RenderFragment CreateDynamicButtons() => builder =>
+    {
+        int seq = 0;
+        foreach (var button in Buttons.OrderBy(b => b.ToolTip))
+        {
+            builder.OpenComponent(seq++, typeof(CoreButton));
+
+            foreach (var prop in button.GetType().GetProperties())
+            {
+                var value = prop.GetValue(button);
+
+                if (value != null && prop.CanWrite)
+                    builder.AddAttribute(seq++, prop.Name, value);
+            }
+            builder.CloseComponent();
+        }
+    };
+}
+
+<style>
+    .rz-tooltip .rz-left-tooltip-content:after {
+        transform: translate(4px, 0px) rotate(-42deg) !important;
+    }
+
+</style>

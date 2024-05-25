@@ -1,0 +1,37 @@
+﻿@using Radzen.Blazor
+<RadzenFileInput ValueChanged="OnFileChanged" FileNameChanged="OnFileNameChanged" TValue="string" Accept=@Accept/>
+
+@code {
+    [Parameter]
+    public string? FileName { get; set; }
+
+    [Parameter]
+    public EventCallback<string> FileNameChanged { get; set; }
+
+    [Parameter]
+    public string? File { get; set; }
+
+    [Parameter]
+    public EventCallback<string> FileChanged { get; set; }
+
+    [Parameter]
+    public string? Accept { get; set; }
+
+    private async Task OnFileNameChanged(string? newValue)
+    {
+        if (FileName != newValue)
+        {
+            FileName = newValue;
+            await FileNameChanged.InvokeAsync(newValue);
+        }
+    }
+
+    private async Task OnFileChanged(string? newValue)
+    {
+        if (File != newValue)
+        {
+            File = newValue;
+            await FileChanged.InvokeAsync(newValue);
+        }
+    }
+}

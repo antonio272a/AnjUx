@@ -1,0 +1,118 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Radzen
+@using Radzen.Blazor
+@inherits ComponentBase
+@implements IDisposable
+
+<RadzenButton @ref=Button Visible="@Visible" MouseEnter="@MouseEnter" ChildContent="@ChildContent" ButtonType="@GetButtonType()" ButtonStyle="(Radzen.ButtonStyle)EnumTranslator.TranslateEnum(ButtonStyle)" title="@ToolTip" Icon="@IconText" Text="@Text" Size="@ButtonSizeInternal" Click="@InternalClick" Style="@($"margin: 2px; {Style}")">
+
+</RadzenButton>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [CascadingParameter]
+    private CoreForm? ParentCoreForm { get; set; }
+
+    [CascadingParameter]
+    private CoreDataGridRow? ParentCoreDataGridRow { get; set; }
+
+    [CascadingParameter(Name = "InsideToolbar")]
+    private bool InsideToolbar { get; set; }
+    
+    [CascadingParameter(Name = "RepresentsToolbar")]
+    private bool RepresentsToolbar { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public AnjUx.Client.Shared.ButtonType ButtonType { get; set; } = AnjUx.Client.Shared.ButtonType.Button;
+
+    [Parameter]
+    public AnjUx.Client.Shared.ButtonStyle ButtonStyle { get; set; } = AnjUx.Client.Shared.ButtonStyle.Primary;
+
+    [Parameter]
+    public Icon? Icon { get; set; } = null;
+
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public AnjUx.Client.Shared.ButtonSize? Size { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Click { get; set; }
+
+    [Parameter]
+    public string ToolTip { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<ElementReference> MouseEnter { get; set; }
+
+    private string IconText { get; set; } = string.Empty;
+
+    private RadzenButton? Button { get; set; }
+
+    public ElementReference Element
+    {
+        get
+        {
+            return Button!.Element;
+        }
+    }
+
+    private Radzen.ButtonSize ButtonSizeInternal
+    {
+        get
+        {
+            if (Size != null) return (Radzen.ButtonSize)EnumTranslator.TranslateEnum(Size.Value);
+
+            if (ParentCoreDataGridRow != null || InsideToolbar)
+                return Radzen.ButtonSize.ExtraSmall;
+
+            return Radzen.ButtonSize.Medium;
+        }
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (ParentCoreDataGridRow != null && !RepresentsToolbar)
+            ParentCoreDataGridRow.RegisterChildComponent(this);
+
+        if (Icon != null)
+            IconText = IconNameAttribute.GetIconName(Icon);
+
+        return base.OnInitializedAsync();
+    }
+
+    private Radzen.ButtonType GetButtonType()
+    {
+        if (ButtonType == AnjUx.Client.Shared.ButtonType.Reset) return Radzen.ButtonType.Button;
+        return (Radzen.ButtonType)EnumTranslator.TranslateEnum(ButtonType);
+    }
+
+    private async void InternalClick()
+    {
+        await Click.InvokeAsync();
+
+        if (ButtonType == AnjUx.Client.Shared.ButtonType.Reset && ParentCoreForm != null)
+        {
+            ParentCoreForm.Reset();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (ParentCoreDataGridRow != null && Visible)
+            ParentCoreDataGridRow.UnregisterChildComponent(this);
+    }
+}

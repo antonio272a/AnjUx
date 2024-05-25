@@ -1,0 +1,15 @@
+﻿@inherits ComponentBase
+@attribute [CascadingTypeParameter(nameof(TModel))]
+@typeparam TModel
+
+<CascadingValue Value="@Model">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public TModel? Model { get; set; }
+}

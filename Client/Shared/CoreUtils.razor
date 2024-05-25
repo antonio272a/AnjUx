@@ -1,0 +1,20 @@
+@using Radzen
+@using Radzen.Blazor
+
+<RadzenDialog />
+<RadzenNotification Style="NotificationStyle"/>
+<RadzenContextMenu />
+<RadzenTooltip />
+
+@code {
+    [Parameter]
+    public string NotificationStyle { get; set; } = "position: absolute; left: 10%;";
+}
+
+<style>
+    .rz-notification {
+        left: 50%;
+        right: unset !important;
+        transform: translateX(-50%);
+    }
+</style>

@@ -1,0 +1,63 @@
+﻿@using AnjUx.Shared.Extensions
+@using Microsoft.AspNetCore.Components.Forms
+@using Radzen
+@using Radzen.Blazor
+@inherits ComponentBase
+
+<RadzenColumn MouseEnter="@MouseEnter" MouseLeave="@MouseLeave" ChildContent="ChildContent" Style="@($"display: flex; align-items: {AlignItems}; justify-content: {JustifyContent}; width: 100%; min-width: {MinWidth}; max-width: {MaxWidth}; {Style}")">
+
+</RadzenColumn>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [CascadingParameter]
+    private EditContext EditContext { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public JustifyContent JustifyContent { get; set; } = JustifyContent.Start;
+
+    [Parameter]
+    public AlignItems AlignItems { get; set; } = AlignItems.Start;
+
+    [Parameter]
+    public string MaxWidth { get; set; } = "100%";
+
+    [Parameter]
+    public EventCallback<ElementReference> MouseEnter { get; set; }
+    
+    [Parameter]
+    public EventCallback<ElementReference> MouseLeave { get; set; }
+
+    private int minWidth = 200;
+
+    private string MinWidth
+    {
+        get
+        {
+            return MaxWidthInferior() ? MaxWidth : $"{minWidth}px";
+        }    
+    }
+
+    private bool MaxWidthInferior()
+    {
+        if (MaxWidth == "100%") return false;
+
+        string measure = MaxWidth.GetChars();
+
+        switch(measure)
+        {
+            case "px":
+                return MaxWidth.GetDigits().ToInt() < minWidth;
+            
+            default:
+                return false;
+        }
+
+    }
+
+}

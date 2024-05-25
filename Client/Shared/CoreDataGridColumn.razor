@@ -1,0 +1,157 @@
+﻿@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@using System.Linq.Expressions
+@using AnjUx.Shared.Extensions
+@typeparam TItem
+
+<Radzen.Blazor.RadzenDataGridColumn TItem="TItem" Title="@title" Width="@(ActionColumn ? "0" : Width)" Sortable="@Sortable" Filterable="@Filterable" TextAlign="@TextAlignInternal">
+
+    <Template Context="data">
+        <div style="display: flex;">
+            @if (Template != null)
+            {
+                <CoreDataGridRow OrderActions="@OrderActions" ActionColumn="@ActionColumn">
+                    @Template(data)
+                </CoreDataGridRow>
+            }
+
+            @if (Inline != null)
+            {
+                <CoreDataGridRow>
+                    @Inline(data)
+                </CoreDataGridRow>
+            }
+
+            @if (Toolbar != null)
+            {
+                <CoreDataGridRow OrderActions="@OrderActions" ActionColumn="@ActionColumn" RenderToolbar ToolbarType="@ToolbarType">
+                     @Toolbar(data)
+                </CoreDataGridRow>
+            }
+        </div>
+
+        @if (PropertyCompiled != null)
+        {
+            @GetPropertyValue(data)
+        }
+    </Template>
+
+</Radzen.Blazor.RadzenDataGridColumn>
+
+@code {
+    [Parameter]
+    public RenderFragment<TItem>? Template { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? Inline { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? Toolbar { get; set; }
+
+    [Parameter]
+    public Expression<Func<TItem, object?>>? Property { get; set; }
+
+    private Func<TItem, object?>? PropertyCompiled { get; set; }
+
+    [Parameter]
+    public bool ActionColumn { get; set; }
+
+    [Parameter]
+    public ToolbarType ToolbarType { get; set; } = ToolbarType.ActionMenu;
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Width { get; set; }
+
+    [Parameter]
+    public bool Filterable { get; set; }
+
+    [Parameter]
+    public bool Sortable { get; set; }
+
+    [Parameter]
+    public TextAlign? TextAlign { get; set; }
+
+    [Parameter]
+    public bool OrderActions { get; set; } = true;
+
+    private Radzen.TextAlign TextAlignInternal
+    {
+        get
+        {
+            if (TextAlign != null) return (Radzen.TextAlign)EnumTranslator.TranslateEnum(TextAlign.Value);
+
+            if (ActionColumn) return Radzen.TextAlign.Center;
+
+            return Radzen.TextAlign.Left;
+        }
+    }
+
+    private string? title;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (!ActionColumn) DefineTitle();
+
+        if (Property != null)
+            PropertyCompiled = Property.Compile();
+
+        return base.OnInitializedAsync();
+    }
+
+    private void DefineTitle()
+    {
+        if (!Title.IsNullOrWhiteSpace())
+        {
+            title = Title;
+            return;
+        }
+
+        if (Property != null)
+        {
+            Expression body = Property.Body;
+
+            if (body is UnaryExpression unary)
+                body = unary.Operand;
+
+            if (body is MemberExpression member)
+            {
+                title = member.Member.GetCustomAttribute<DisplayAttribute>()?.Name ?? member.Member.Name;
+                return;
+            }
+        }
+
+        title = "Não Informado";
+    }
+
+    private string GetPropertyValue(TItem data)
+    {
+        if (PropertyCompiled != null)
+        {
+            try
+            {
+                var value = PropertyCompiled(data);
+
+                if (value != null)
+                {
+                    Type tipo = value.GetType();
+                    Type tipoNaoNulo = Nullable.GetUnderlyingType(tipo) ?? tipo;
+
+                    if (tipoNaoNulo.IsEnum)
+                        return (value as Enum)!.GetDescriptionEnum()!;
+                    else if (tipoNaoNulo == typeof(bool))
+                        return (bool)value ? "Sim" : "Não";
+                    else
+                        return value.ToString()!;
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        return "Não Informado";
+    }
+}

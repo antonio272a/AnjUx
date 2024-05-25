@@ -1,0 +1,14 @@
+﻿<Radzen.Blazor.RadzenImage Path="@Path" Style="@Style" Click="@Click" />
+
+@code {
+
+    [EditorRequired]
+    [Parameter]
+    public string? Path { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public EventCallback Click { get; set; }
+}

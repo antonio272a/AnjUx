@@ -1,0 +1,89 @@
+﻿@inject Radzen.TooltipService tooltipService
+
+<div>
+    <CascadingValue Name="RepresentsToolbar" Value="true">
+        <CoreButton @ref=Button Icon="Icon.Settings" Size="ButtonSize.ExtraSmall" Click="OpenToolbar" />
+    </CascadingValue>
+    <div style="display: none; visibility: hidden">@ChildContent</div>
+</div>
+
+@code {
+    private CoreButton? Button { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public List<CoreButton> Buttons { get; set; }
+
+    [Parameter]
+    public bool OrderActions { get; set; }
+
+    private void OpenToolbar()
+    {
+        Radzen.TooltipOptions options = new()
+        {
+            Duration = null,
+            CloseTooltipOnDocumentClick = true,
+            Position = Radzen.TooltipPosition.Left,
+            Style = "background-color: white; transform: translateY(-20px); border 1px solid #ccc;",
+        };
+
+
+        tooltipService.Open(
+            Button!.Element,
+            ds => @<CorePanelMenu>
+                    @CreateDynamicActionItem()
+                </CorePanelMenu>,
+                options
+        );
+
+    }
+
+    private RenderFragment CreateDynamicActionItem() => builder =>
+    {
+        List<CoreButton> buttons = OrderActions ? Buttons.OrderBy(b => b.ToolTip).ToList() : Buttons;
+
+        int seq = 0;
+        foreach (var button in buttons)
+        {
+            builder.OpenComponent(seq++, typeof(CorePanelMenuItem));
+
+            if (button.Icon != null)
+                builder.AddAttribute(seq++, nameof(CorePanelMenuItem.Icon), button.Icon);
+
+            if (button.ToolTip != null)
+                builder.AddAttribute(seq++, nameof(CorePanelMenuItem.Text), button.ToolTip);
+
+            if (button.Click.HasDelegate)
+                builder.AddAttribute(seq++, nameof(CorePanelMenuItem.Click), button.Click);
+
+            builder.AddAttribute(seq++, nameof(CorePanelMenuItem.Visible), button.Visible);
+
+            builder.CloseComponent();
+        }
+    };
+}
+
+<style>
+    .rz-tooltip .rz-left-tooltip-content:after {
+        transform: translate(4px, 0px) rotate(-42deg) !important;
+    }
+
+    .rz-panel-menu {
+        color: var(--rz-base-700);
+        background-color: white;
+    }
+
+        .rz-panel-menu .rz-navigation-item {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .rz-panel-menu .rz-navigation-item:hover {
+            background-color: #333333;
+        }
+
+        .rz-panel-menu .rz-navigation-item:last-child {
+            border: none;
+        }
+</style>

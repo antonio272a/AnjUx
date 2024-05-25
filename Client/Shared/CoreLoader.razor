@@ -1,0 +1,47 @@
+﻿@using AnjUx.Client.Services
+@using Radzen
+@using Radzen.Blazor
+@inherits ComponentBase
+@implements IDisposable
+@inject LoadingService LoadingService
+
+@if (LoadingService.IsLoading)
+{
+    <div class="loader">
+        <RadzenProgressBarCircular Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        LoadingService.OnLoadingChanged += StateChanged;
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        LoadingService.OnLoadingChanged -= StateChanged;
+    }
+
+    public void StateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}
+
+<style>
+    .loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        height: 100vh;
+        width: 100vw;
+        z-index: 999999;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>

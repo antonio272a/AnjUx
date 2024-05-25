@@ -1,0 +1,27 @@
+﻿<Radzen.Blazor.RadzenIcon Icon="@IconName" IconStyle="@iconStyle" Style="@Style"  />
+
+@code {
+    private string IconName { get; set; } = "";
+
+    private Radzen.IconStyle? iconStyle { get; set; }
+
+    [Parameter]
+    public Icon? Icon { get; set; }
+
+    [Parameter]
+    public IconStyle? IconStyle { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        IconName = IconNameAttribute.GetIconName(Icon);
+
+        if(IconStyle != null)
+            iconStyle = (Radzen.IconStyle)EnumTranslator.TranslateEnum(IconStyle.Value);
+
+        return base.OnInitializedAsync();
+    }
+
+}

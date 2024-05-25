@@ -1,0 +1,126 @@
+﻿@using System.Reflection
+@using Microsoft.AspNetCore.Components.Routing
+@using System.Diagnostics
+@inject NavigationManager NavigationManager
+
+@if (routeData != null)
+{
+    <CascadingValue Value="routeData">
+        @if (FoundContent != null)
+        {
+            @FoundContent(@routeData)
+        }
+    </CascadingValue>
+}
+else
+{
+    @NotFoundContent
+}
+
+@code {
+    private RouteData? routeData;
+
+    [Parameter]
+    public RenderFragment<RouteData>? FoundContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? NotFoundContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        HandleLocationChanged(this, new LocationChangedEventArgs(NavigationManager.Uri, true));
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var relativeUri = new Uri(e.Location).LocalPath.ToLower();
+
+        if (relativeUri.EndsWith("/index"))
+            relativeUri = relativeUri.Substring(0, relativeUri.Length - 6);
+
+        if (relativeUri.EndsWith("/") && relativeUri != "/")
+            relativeUri = relativeUri.Substring(0, relativeUri.Length - 1);
+
+        Type? page = TryGetRoute(relativeUri);
+
+        if (page != null)
+        {
+
+            RouteAttribute? routeAttribute = page.GetCustomAttribute<RouteAttribute>();
+
+            var routeValues = new Dictionary<string, object?>();
+
+            // Se temos atributo de rota, podemos ter parâmetros de rota simbolizados por {nomeParametro}
+            // Então separa somente esses parâmetros, caso existam
+            if (routeAttribute != null)
+            {
+                var routeSegments = routeAttribute.Template.Split('/');
+                var uriSegments = relativeUri.Split('/');
+
+                for (int i = 0; i < routeSegments.Length; i++)
+                {
+                    bool containsType = routeSegments[i].Contains(':');
+                    string routeSegment = containsType ? $"{routeSegments[i].Split(':')[0]}}}" : routeSegments[i];
+                    string type = containsType ? routeSegments[i].Split(':')[1] : string.Empty;
+
+                    if (routeSegment.StartsWith("{") && routeSegment.EndsWith("}"))
+                    {
+                        var parameterName = routeSegment.Substring(1, routeSegment.Length - 2);
+                        if (i < uriSegments.Length)
+                        {
+                            if (string.IsNullOrWhiteSpace(type))
+                                routeValues[parameterName] = uriSegments[i];
+                            else if (type.Contains("long"))
+                                routeValues[parameterName] = long.Parse(uriSegments[i]);
+                            else if (type.Contains("int"))
+                                routeValues[parameterName] = int.Parse(uriSegments[i]);
+                            else if (type.Contains("bool"))
+                                routeValues[parameterName] = bool.Parse(uriSegments[i]);
+                            else if (type.Contains("decimal"))
+                                routeValues[parameterName] = decimal.Parse(uriSegments[i]);
+                            else if (type.Contains("double"))
+                                routeValues[parameterName] = double.Parse(uriSegments[i]);
+                            else if (type.Contains("string"))
+                                routeValues[parameterName] = uriSegments[i];
+                        }
+                    }
+                }
+            }
+
+            routeData = new RouteData(page, routeValues);
+        }
+        else
+            routeData = null;
+
+        StateHasChanged();
+    }
+
+    private Type? TryGetRoute(string relativeUri)
+    {
+        Type? page;
+
+        if (CoreRoutes.Instance.Rotas.TryGetValue(relativeUri, out page))
+            return page;
+
+        if (CoreRoutes.Instance.Rotas.TryGetValue($"{relativeUri}/*", out page))
+            return page;
+
+        // Caso não ache, tentamos ver se ao remover o último segmento da URL e adicionando um \/* conseguimos achar
+        var segments = relativeUri.Split('/');
+
+        if (segments.Length > 1)
+        {
+            var newRelativeUri = string.Join('/', segments.Take(segments.Length - 1)) + "/*";
+            if (CoreRoutes.Instance.Rotas.TryGetValue(newRelativeUri, out page))
+                return page;
+        }
+
+        return null;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

@@ -1,0 +1,92 @@
+﻿@using System.Text;
+@using Microsoft.AspNetCore.Components.Forms
+@attribute [CascadingTypeParameter(nameof(TModel))]
+@inherits CoreForm
+@typeparam TModel
+
+<CascadingValue Value="this">
+    <CascadingValue Value="@Model">
+        @if (!CreateCardInternal)
+        {
+            <EditForm class="edit-form" style="display: flex; flex-direction: column;" Model="Model" OnValidSubmit="OnValidSubmit">
+                @ChildContent
+            </EditForm>
+        }
+        else
+        {
+            <CoreCard Title="@Title" Width="@Width" Style="@Style">
+                <EditForm class="edit-form" style="display: flex; flex-direction: column;" Model="Model" OnValidSubmit="OnValidSubmit">
+                    @ChildContent
+                </EditForm>
+            </CoreCard>
+        }
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    private List<object> Editors { get; } = new List<object>();
+
+    internal void RegisterEditor<TValue>(EditorFor<TModel, TValue> editor)
+    {
+        Editors.Add(editor);
+    }
+
+    internal void UnregisterEditor<TValue>(EditorFor<TModel, TValue> editor)
+    {
+        Editors.Remove(editor);
+    }
+
+    public override void Reset()
+    {
+        if (Editors != null)
+        {
+            foreach (var editor in Editors)
+            {
+                var method = editor.GetType().GetMethod("Reset");
+                if (method != null)
+                {
+                    method.Invoke(editor, null);
+                }
+            }
+        }
+    }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [CascadingParameter]
+    private CoreCard? ParentCard { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnValidSubmit { get; set; }
+
+    [Parameter]
+    public TModel? Model { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Width { get; set; } = "95vw";
+
+    [Parameter]
+    public bool? CreateCard { get; set; }
+
+    public bool CreateCardInternal
+    {
+        get
+        {
+            // Se foi passado parâmetro, respeitamos o mesmo
+            if (CreateCard != null) return CreateCard.Value;
+
+            // Se não foi passado parâmetro, só renderizamos se não houver card acima
+            return ParentCard == null;
+        }
+    }
+}

@@ -1,0 +1,201 @@
+﻿@using System.Linq.Expressions;
+@using System.Reflection;
+@using System.ComponentModel;
+@using AnjUx.Client.Services
+@using AnjUx.Shared.Extensions
+@using Microsoft.AspNetCore.Components.Forms
+@using Radzen
+@using Radzen.Blazor
+@using System.ComponentModel.DataAnnotations
+@inject CoreNotificationService notificationService
+@inject TooltipService tooltipService
+@inherits ComponentBase
+@typeparam TValue
+@typeparam TModel
+
+<CoreCol JustifyContent="@JustifyContent" AlignItems="@AlignItems">
+    <RadzenStack MouseEnter="MouseEnterTooltip" MouseLeave="MouseLeaveTooltip" Style="@($"margin-top: 0.625rem; gap: 0; {Style}")" Orientation="@OrientationInternal" JustifyContent="@JustifyContentInternal" AlignItems="@AlignItemsInternal">
+        @if (Property != null)
+        {
+            @if (UseLabel)
+            {
+                <RadzenLabel Text="@label"></RadzenLabel>
+            }
+            <RadzenText Text="@Value?.ToString()"></RadzenText>
+        }
+        @if (Text != null)
+        {
+            <RadzenText>@Text.ToString()</RadzenText>
+        }
+    </RadzenStack>
+</CoreCol>
+
+
+@code {
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [CascadingParameter]
+    private TModel? Model { get; set; }
+
+    [Parameter]
+    public TValue? Text { get; set; }
+
+    [Parameter]
+    public Expression<Func<TModel, TValue>>? Property { get; set; }
+
+    private Func<TModel, TValue>? PropertyCompiled { get; set; }
+
+    [Parameter]
+    public string? ToolTip { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public bool UseLabel { get; set; } = true;
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    [Parameter]
+    public AnjUx.Client.Shared.JustifyContent JustifyContent { get; set; } = AnjUx.Client.Shared.JustifyContent.Start;
+
+    [Parameter]
+    public AnjUx.Client.Shared.AlignItems AlignItems { get; set; } = AnjUx.Client.Shared.AlignItems.Center;
+
+    [Parameter]
+    public AnjUx.Client.Shared.Orientation? TextOrientation { get; set; }
+
+    [Parameter]
+    public AnjUx.Client.Shared.JustifyContent? TextJustifyContent { get; set; }
+
+    [Parameter]
+    public AnjUx.Client.Shared.AlignItems? TextAlignItems { get; set; }
+
+    private Radzen.Orientation OrientationInternal
+    {
+        get
+        {
+            if (TextOrientation != null) return (Radzen.Orientation)EnumTranslator.TranslateEnum(TextOrientation.Value);
+
+            if (Inline) return Radzen.Orientation.Horizontal;
+
+            return Radzen.Orientation.Vertical;
+        }
+    }
+
+    private Radzen.JustifyContent JustifyContentInternal
+    {
+        get
+        {
+            if (TextJustifyContent != null) return (Radzen.JustifyContent)EnumTranslator.TranslateEnum(TextJustifyContent.Value);
+
+            if (Inline) return Radzen.JustifyContent.Start;
+
+            return Radzen.JustifyContent.Center;
+        }
+    }
+
+    private Radzen.AlignItems AlignItemsInternal
+    {
+        get
+        {
+            if (TextAlignItems != null) return (Radzen.AlignItems)EnumTranslator.TranslateEnum(TextAlignItems.Value);
+
+            if (Inline) return Radzen.AlignItems.Center;
+
+            return Radzen.AlignItems.Start;
+        }
+    }
+
+    private string? label;
+
+    protected async override Task OnInitializedAsync()
+    {
+        PropertyCompiled = Property?.Compile();
+
+        if (UseLabel) DefineLabel();
+
+        await base.OnInitializedAsync();
+    }
+
+    private void MouseEnterTooltip(ElementReference reference)
+    {
+        if (ToolTip.IsNullOrWhiteSpace()) return;
+
+        TooltipOptions options = new()
+            {
+                Duration = null,
+                Style = "background-color: #f5f5f5; color: #000; box-shadow: 0 0 0.5rem #000"
+            };
+
+        tooltipService.Open(reference, ToolTip, options);
+    }
+
+    private void MouseLeaveTooltip()
+    {
+        tooltipService.Close();
+    }
+
+    private void DefineLabel()
+    {
+        if (!Label.IsNullOrWhiteSpace())
+        {
+            label = Label;
+            return;
+        }
+
+        if (Property != null)
+        {
+            Expression body = Property.Body;
+
+            if (body is UnaryExpression unary)
+                body = unary.Operand;
+
+            if (body is MemberExpression member)
+            {
+                label = member.Member.GetCustomAttribute<DisplayAttribute>()?.Name ?? member.Member.Name;
+                return;
+            }
+        }
+
+        label = "Não Informado";
+    }
+
+    private object? Value
+    {
+        get
+        {
+            return GetValue();
+        }
+    }
+
+    private object? GetValue()
+    {
+        object? valor = null;
+
+        try
+        {
+            if (Property != null)
+                valor = PropertyCompiled!(Model!);
+        }
+        catch (Exception)
+        {
+            
+        }
+
+        if (valor == null)
+            valor = "Não Informado";
+
+        Type tipo = valor.GetType();
+
+        if (tipo.IsEnum)
+            valor = (valor as Enum)!.GetDescriptionEnum();
+
+        return valor;
+    }
+}

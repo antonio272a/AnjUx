@@ -1,0 +1,61 @@
+﻿
+<CascadingValue Value="this">
+    @if (!ActionColumn || !renderToolbar)
+    {
+        @ChildContent
+    }
+    else if(ToolbarType == ToolbarType.ToolBar)
+    {
+        <CoreToolbar OrderActions="@OrderActions" Buttons="ChildComponents">
+            @ChildContent
+        </CoreToolbar>
+    } else
+    {
+        <CoreActionMenu OrderActions="@OrderActions" Buttons="ChildComponents">
+            @ChildContent
+        </CoreActionMenu>
+    }
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool ActionColumn { get; set; }
+
+    [Parameter]
+    public bool OrderActions { get; set; }
+
+    [Parameter]
+    public ToolbarType ToolbarType { get; set; } = ToolbarType.ActionMenu;
+
+    [Parameter]
+    public bool RenderToolbar { get; set; }
+
+    private List<CoreButton> ChildComponents { get; set; } = new();
+
+    private bool renderToolbar = false;
+
+    private readonly int ComponentsToRenderToolbar = 3;
+
+    protected override Task OnInitializedAsync()
+    {
+        renderToolbar = RenderToolbar;
+
+        return base.OnInitializedAsync();
+    }
+
+    public void RegisterChildComponent(CoreButton component)
+    {
+
+        ChildComponents.Add(component);
+        if (ChildComponents.Count >= ComponentsToRenderToolbar && !renderToolbar)
+        {
+            renderToolbar = true;
+        }
+        StateHasChanged();
+    }
+
+    public void UnregisterChildComponent(CoreButton component) => ChildComponents.Remove(component);
+}

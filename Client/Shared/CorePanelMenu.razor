@@ -1,0 +1,19 @@
+﻿@using Radzen
+
+<Radzen.Blazor.RadzenPanelMenu Click="@Click" Multiple="@Multiple" Visible="@Visible" DisplayStyle="MenuItemDisplayStyle.IconAndText">
+    @ChildContent
+</Radzen.Blazor.RadzenPanelMenu>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback<MenuItemEventArgs> Click { get; set; }
+
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+}

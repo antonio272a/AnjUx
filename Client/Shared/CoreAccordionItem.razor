@@ -1,0 +1,17 @@
+﻿@using Radzen.Blazor
+@inherits ComponentBase
+
+<RadzenAccordionItem Text="@Text" Selected="Selected">
+    @ChildContent
+</RadzenAccordionItem>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public bool Selected { get; set; } = false;
+}

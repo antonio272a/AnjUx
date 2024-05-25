@@ -1,0 +1,30 @@
+﻿@implements IDisposable
+
+<Radzen.Blazor.Rendering.Popup @ref=popup Lazy="@Lazy" Style="@Style" Open="@Open" PreventDefault="@PreventDefault" >
+    @ChildContent
+</Radzen.Blazor.Rendering.Popup>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool Lazy { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public EventCallback Open { get; set; }
+
+    [Parameter]
+    public bool PreventDefault { get; set; }
+
+    private Radzen.Blazor.Rendering.Popup? popup;
+
+    public async Task CloseAsync() => await popup!.CloseAsync();
+
+    public async Task ToggleAsync(ElementReference target) => await popup!.ToggleAsync(target);
+
+    public void Dispose() => popup?.Dispose();
+}

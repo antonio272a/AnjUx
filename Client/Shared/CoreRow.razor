@@ -1,0 +1,58 @@
+﻿    @using Microsoft.AspNetCore.Components.Forms
+    @using Radzen
+    @using Radzen.Blazor
+    @inherits ComponentBase
+
+    <CascadingValue Value="this">
+        <div style="@($"{(Actions ? "margin-top: 1.5rem": "")}")" class="@($"{(Hover ? "row-hover": "")}")">
+        @if(Actions)
+        {
+            <div style="width: 100%; border-top: 1px solid #ccc; margin-bottom: 0.5rem;" />
+        }
+        <RadzenRow ChildContent="@ChildContent" JustifyContent="JustifyContentInternal" AlignItems="(Radzen.AlignItems)EnumTranslator.TranslateEnum(AlignItems)" Style="@($"gap: 4px; width: 100%; {Style}")">
+            </RadzenRow>
+        </div>
+    </CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [CascadingParameter]
+    private EditContext EditContext { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public JustifyContent? JustifyContent { get; set; }
+
+    [Parameter]
+    public AlignItems AlignItems { get; set; } = AlignItems.Normal;
+
+    [Parameter]
+    public bool Hover { get; set; } = false;
+
+    [Parameter]
+    public bool Actions { get; set; } = false;
+
+    public Radzen.JustifyContent JustifyContentInternal
+    {
+        get
+        {
+            if (JustifyContent != null) return (Radzen.JustifyContent)EnumTranslator.TranslateEnum(JustifyContent.Value);
+
+            if (Actions) return Radzen.JustifyContent.End;
+
+            return Radzen.JustifyContent.Start;
+        }
+    }
+}
+
+<style>
+    .row-hover:hover {
+        background-color: var(--rz-primary-lighter);
+        transition: 0.1s ease-in-out;
+    }
+
+</style>

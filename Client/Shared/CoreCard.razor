@@ -1,0 +1,38 @@
+﻿@using Radzen.Blazor
+@inherits ComponentBase
+
+<CascadingValue Value="this">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <h3>@Title</h3>
+    }
+
+    <RadzenCard Style="@($"width: {Width}; max-width: {Width} !important; margin: auto; {Style}")" ChildContent="ChildContent">
+
+    </RadzenCard>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public bool Modal { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Width { get; set; } = "95vw";
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (Modal && Width == "95vw")
+            Width = "auto";
+
+        return base.OnInitializedAsync();
+    }
+}

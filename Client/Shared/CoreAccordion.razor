@@ -1,0 +1,18 @@
+﻿@using Radzen.Blazor
+@inherits ComponentBase
+
+<CoreCard Width="100%">
+    @Header
+    <RadzenAccordion Items="Items!" Multiple="Multiple" />
+</CoreCard>
+
+@code {
+    [Parameter]
+    public RenderFragment? Header { get; set; }
+
+    [Parameter]
+    public RenderFragment? Items { get; set; }
+
+    [Parameter]
+    public bool Multiple { get; set; } = false;
+}

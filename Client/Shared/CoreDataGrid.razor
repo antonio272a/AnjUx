@@ -1,0 +1,65 @@
+﻿@attribute [CascadingTypeParameter(nameof(TItem))]
+@typeparam TItem
+
+<Radzen.Blazor.RadzenDataGrid HeaderTemplate="@HeaderTemplate" Data="@Data" TItem="TItem" AllowFiltering="@AllowFiltering" AllowSorting="@AllowSorting" Density="@DensityInternal" GridLines="@GridLinesInternal">
+    <Columns>
+        @Columns
+    </Columns>
+    <EmptyTemplate>
+        @if (EmptyTemplate == null)
+        {
+            <div class="text-center">
+                <h3>Nenhum registro encontrado</h3>
+            </div>
+        }
+        else
+        {
+            @EmptyTemplate
+        }
+    </EmptyTemplate>
+</Radzen.Blazor.RadzenDataGrid>
+
+@code {
+    [Parameter]
+    public RenderFragment? Columns { get; set; }
+
+    [Parameter]
+    public RenderFragment? EmptyTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment? HeaderTemplate { get; set; }
+
+    [Parameter]
+    public IEnumerable<TItem>? Data { get; set; }
+
+    [Parameter]
+    public Density Density { get; set; } = Density.Compact;
+
+    private Radzen.Density DensityInternal => (Radzen.Density)EnumTranslator.TranslateEnum(Density);
+
+    [Parameter]
+    public DataGridGridLines GridLines { get; set; } = DataGridGridLines.Both;
+
+    private Radzen.DataGridGridLines GridLinesInternal => (Radzen.DataGridGridLines)EnumTranslator.TranslateEnum(GridLines);
+
+    [Parameter]
+    public bool AllowFiltering { get; set; }
+
+    [Parameter]
+    public bool AllowSorting { get; set; }
+}
+
+<style>
+    .rz-data-grid-data {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rz-grid-table {
+        width: unset;
+    }
+
+    .rz-custom-header {
+        width: 100%;
+    }
+</style>
