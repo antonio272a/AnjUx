@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AnjUx.Shared.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -100,6 +101,26 @@ namespace AnjUx.Shared.Extensions
             if (tipoAtributo != null && excluirTipoEspecificado) props = props.Where(prop => prop.GetCustomAttribute(tipoAtributo!) == null).ToList();
 
             return props;
+        }
+
+        /// <summary>
+        /// Pega o nome da Tabela no Banco de Dados
+        /// </summary>
+        /// <param name="tipo">Classe em questão</param>
+        /// <returns>Retorna o TableName do DBTableAttribute</returns>
+        public static string GetDBTableFullName(this Type tipo)
+        {
+            // vars e o DBTable da classe, se existir
+            var fullName = string.Empty;
+            var att = tipo.GetCustomAttribute<DBTableAttribute>();
+
+            // Se existir o DBTable, usa o nome da tabela indicado, caso contrário usa o nome da própria classe
+            if (att != null)
+                fullName = $"{att.Table}";
+            else
+                fullName = tipo.Name;
+
+            return fullName;
         }
 
     }
