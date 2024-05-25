@@ -1,7 +1,7 @@
 ﻿@using System.Reflection
 @using Microsoft.AspNetCore.Components.Routing
 @using System.Diagnostics
-@inject NavigationManager NavigationManager
+@inject NavigationManager navigationManager
 
 @if (routeData != null)
 {
@@ -28,8 +28,8 @@ else
 
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += HandleLocationChanged;
-        HandleLocationChanged(this, new LocationChangedEventArgs(NavigationManager.Uri, true));
+        navigationManager.LocationChanged += HandleLocationChanged;
+        HandleLocationChanged(this, new LocationChangedEventArgs(navigationManager.Uri, true));
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -121,6 +121,6 @@ else
 
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= HandleLocationChanged;
+        navigationManager.LocationChanged -= HandleLocationChanged;
     }
 }

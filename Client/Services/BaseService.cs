@@ -3,7 +3,7 @@ using AnjUx.Client.Services;
 using AnjUx.Shared.Interfaces;
 using System.Net.Http.Json;
 
-namespace Manager.Client.Services
+namespace AnjUx.Client.Services
 {
     public abstract class BaseService<T>(HttpClient http, CoreNotificationService notificationService, LoadingService loadingService) : BaseService(http, notificationService, loadingService)
         where T : IDbModel

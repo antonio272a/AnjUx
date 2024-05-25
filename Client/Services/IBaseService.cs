@@ -1,4 +1,4 @@
-﻿namespace Manager.Client.Services
+﻿namespace AnjUx.Client.Services
 {
     public interface IBaseService
     {

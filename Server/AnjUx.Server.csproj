@@ -7,10 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="DeepCloner" Version="0.10.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AnjUx.ORM\AnjUx.ORM.csproj" />
     <ProjectReference Include="..\Client\AnjUx.Client.csproj" />
     <ProjectReference Include="..\Shared\AnjUx.Shared.csproj" />
   </ItemGroup>

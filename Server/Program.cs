@@ -1,11 +1,33 @@
+using AnjUx.Server.Controllers;
+using AnjUx.Server.Middlewares;
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Conventions.Add(new PadraoRoteamento());
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+    builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.UseCors("CorsPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

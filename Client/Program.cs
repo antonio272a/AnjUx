@@ -1,6 +1,6 @@
 using AnjUx.Client;
 using AnjUx.Client.Shared;
-using Manager.Client.Services;
+using AnjUx.Client.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System.Reflection;
