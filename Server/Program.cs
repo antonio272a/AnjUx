@@ -1,3 +1,5 @@
+using AnjUx.Migrator;
+using AnjUx.Server;
 using AnjUx.Server.Controllers;
 using AnjUx.Server.Middlewares;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -49,5 +51,9 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+
+
+new Migrator(Config.Instance.ConnectionString, Config.Instance.BaseNome).Executar();
 
 app.Run();

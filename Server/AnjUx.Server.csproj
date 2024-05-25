@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AnjUx.Migrator\AnjUx.Migrator.csproj" />
     <ProjectReference Include="..\AnjUx.ORM\AnjUx.ORM.csproj" />
     <ProjectReference Include="..\Client\AnjUx.Client.csproj" />
     <ProjectReference Include="..\Shared\AnjUx.Shared.csproj" />
