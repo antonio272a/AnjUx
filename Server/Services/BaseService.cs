@@ -15,17 +15,15 @@ namespace AnjUx.Services
     public abstract class BaseDBService<T> : IBaseService, IDBFactoryConsumer
         where T : class, IBaseModel
     {
-        public BaseDBService(LoadingService loadingService, CoreNotificationService notificationService, DBFactory? factory = null)
+        public BaseDBService(DBFactory? factory = null, string? nomeUsuario = null)
         {
-            LoadingService = loadingService;
-            NotificationService = notificationService;
 
             if (factory == null)
                 DBFactory = new DBFactory(Config.Instance.ConnectionString!, "Anônimo");
             else
                 DBFactory = factory;
 
-            NomeUsuario = DBFactory.NomeUsuario;
+            NomeUsuario = nomeUsuario ?? DBFactory.NomeUsuario;
 
             var atributoDB = typeof(T).GetCustomAttribute<DBTableAttribute>();
             Table = string.Empty;
@@ -40,28 +38,9 @@ namespace AnjUx.Services
                 throw new Exception("Classes derivadas de BaseModel devem utilizar o Atributo \"DBTable\".");
         }
 
-        public LoadingService LoadingService { get; set; }
-        public CoreNotificationService NotificationService { get; set; }
         public DBFactory DBFactory { get; set; }
         public string NomeUsuario { get; set; }
         public string Table { get; set; }
-
-        protected async Task<X> RunWithLoading<X>(Func<Task<X>> func)
-        {
-            try
-            {
-                LoadingService.IsLoading = true;
-                return await func.Invoke();
-            }
-            catch (Exception ex)
-            {
-                throw ex.ReThrow();
-            }
-            finally
-            {
-                LoadingService.IsLoading = false;
-            }
-        }
 
         /// <summary>
         ///   Salva um registro/objeto do banco
@@ -80,43 +59,40 @@ namespace AnjUx.Services
             if (!queryBuilder.SQLInserir(objeto, Table, DBFactory.NomeUsuario))
                 return false;
 
-            return await RunWithLoading(async () =>
+            DBFactory.NovaTransacao(out bool minhaTransacao);
+
+            // Tenta executar a query de Insert no banco
+            try
             {
-                DBFactory.NovaTransacao(out bool minhaTransacao);
+                await DBFactory.Connection!.ExecuteAsync(queryBuilder.UltimoSQL!, transaction: DBFactory.Transaction);
+                var query = $"SELECT * FROM {Table} WHERE ID = last_insert_rowid();";
+                var objetoSalvo = DBFactory.Connection!.QueryFirst<T>(query, transaction: DBFactory.Transaction);
 
-                // Tenta executar a query de Insert no banco
-                try
+                // Se o objeto foi salvo corretamente, transferimos seu ID e valores de Insert e Update
+                // para o objeto recebido na chamada
+                if (objetoSalvo.IsPersisted())
                 {
-                    await DBFactory.Connection!.ExecuteAsync(queryBuilder.UltimoSQL!, transaction: DBFactory.Transaction);
-                    var query = $"SELECT * FROM {Table} WHERE ID = last_insert_rowid();";
-                    var objetoSalvo = DBFactory.Connection!.QueryFirst<T>(query, transaction: DBFactory.Transaction);
-
-                    // Se o objeto foi salvo corretamente, transferimos seu ID e valores de Insert e Update
-                    // para o objeto recebido na chamada
-                    if (objetoSalvo.IsPersisted())
-                    {
-                        objeto.ID = objetoSalvo.ID;
-                        objeto.Inserted = objetoSalvo.Inserted;
-                        objeto.InsertUser = objetoSalvo.InsertUser;
-                        objeto.Updated = objetoSalvo.Updated;
-                        objeto.UpdateUser = objetoSalvo.UpdateUser;
-                    }
-
-                    DBFactory.CommitTransacao(minhaTransacao);
-                }
-                catch (Exception ex)
-                {
-                    DBFactory.RollbackTransacao(minhaTransacao);
-
-                    throw ex.ReThrow();
-                }
-                finally
-                {
-                    DBFactory.FecharConexao(minhaTransacao);
+                    objeto.ID = objetoSalvo.ID;
+                    objeto.Inserted = objetoSalvo.Inserted;
+                    objeto.InsertUser = objetoSalvo.InsertUser;
+                    objeto.Updated = objetoSalvo.Updated;
+                    objeto.UpdateUser = objetoSalvo.UpdateUser;
                 }
 
-                return true;
-            });
+                DBFactory.CommitTransacao(minhaTransacao);
+            }
+            catch (Exception ex)
+            {
+                DBFactory.RollbackTransacao(minhaTransacao);
+
+                throw ex.ReThrow();
+            }
+            finally
+            {
+                DBFactory.FecharConexao(minhaTransacao);
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -144,38 +120,36 @@ namespace AnjUx.Services
             if (!queryBuilder.SQLAtualizar(objeto, objetoAntigo, Table, DBFactory.NomeUsuario))
                 return true;
 
-            return await RunWithLoading(async () => {
-                DBFactory.NovaTransacao(out bool minhaTransacao);
+            DBFactory.NovaTransacao(out bool minhaTransacao);
 
-                try
+            try
+            {
+                await DBFactory.Connection!.ExecuteAsync(queryBuilder.UltimoSQL!, transaction: DBFactory.Transaction);
+                var query = $"SELECT * FROM {Table} WHERE ID = {objeto.ID}";
+                var objetoAtualizado = await DBFactory.Connection!.QueryFirstAsync<T>(query, transaction: DBFactory.Transaction);
+
+                // Se o objeto foi salvo corretamente, transferimos seus valores de Update
+                // para o objeto recebido na chamada
+                if (objetoAtualizado.IsPersisted())
                 {
-                    await DBFactory.Connection!.ExecuteAsync(queryBuilder.UltimoSQL!, transaction: DBFactory.Transaction);
-                    var query = $"SELECT * FROM {Table} WHERE ID = {objeto.ID}";
-                    var objetoAtualizado = await DBFactory.Connection!.QueryFirstAsync<T>(query, transaction: DBFactory.Transaction);
-
-                    // Se o objeto foi salvo corretamente, transferimos seus valores de Update
-                    // para o objeto recebido na chamada
-                    if (objetoAtualizado.IsPersisted())
-                    {
-                        objeto.Updated = objetoAtualizado.Updated;
-                        objeto.UpdateUser = objetoAtualizado.UpdateUser;
-                    }
-
-                    DBFactory.CommitTransacao(minhaTransacao);
-
-                    return true;
+                    objeto.Updated = objetoAtualizado.Updated;
+                    objeto.UpdateUser = objetoAtualizado.UpdateUser;
                 }
-                catch (Exception ex)
-                {
-                    DBFactory.RollbackTransacao(minhaTransacao);
 
-                    throw ex.ReThrow();
-                }
-                finally
-                {
-                    DBFactory.FecharConexao(minhaTransacao);
-                }
-            });
+                DBFactory.CommitTransacao(minhaTransacao);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DBFactory.RollbackTransacao(minhaTransacao);
+
+                throw ex.ReThrow();
+            }
+            finally
+            {
+                DBFactory.FecharConexao(minhaTransacao);
+            }
         }
 
         /// <summary>
@@ -189,28 +163,26 @@ namespace AnjUx.Services
 
             var query = $"DELETE FROM {Table} WHERE ID = {objeto.ID}";
 
-            return await RunWithLoading(async () => {
-                DBFactory.NovaTransacao(out bool minhaTransacao);
+            DBFactory.NovaTransacao(out bool minhaTransacao);
 
-                try
-                {
-                    await DBFactory.Connection!.ExecuteAsync(query, transaction: DBFactory.Transaction);
+            try
+            {
+                await DBFactory.Connection!.ExecuteAsync(query, transaction: DBFactory.Transaction);
 
-                    DBFactory.CommitTransacao(minhaTransacao);
+                DBFactory.CommitTransacao(minhaTransacao);
 
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    DBFactory.RollbackTransacao(minhaTransacao);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DBFactory.RollbackTransacao(minhaTransacao);
 
-                    throw ex.ReThrow();
-                }
-                finally
-                {
-                    DBFactory.FecharConexao(minhaTransacao);
-                }
-            });
+                throw ex.ReThrow();
+            }
+            finally
+            {
+                DBFactory.FecharConexao(minhaTransacao);
+            }
         }
 
         /// <summary>
@@ -223,34 +195,31 @@ namespace AnjUx.Services
             // Query padrão para buscar um registro no banco
             var sql = $"SELECT * FROM {Table} WHERE ID = {objeto.ID}";
 
-            return await RunWithLoading(async () =>
+            DBFactory.NovaTransacao(out bool minhaTransacao);
+
+            try
             {
-                DBFactory.NovaTransacao(out bool minhaTransacao);
+                var encontrato = await DBFactory.Connection!.QueryFirstOrDefaultAsync<T>(sql, transaction: DBFactory.Transaction);
 
-                try
-                {
-                    var encontrato = await DBFactory.Connection!.QueryFirstOrDefaultAsync<T>(sql, transaction: DBFactory.Transaction);
+                DBFactory.CommitTransacao(minhaTransacao);
 
-                    DBFactory.CommitTransacao(minhaTransacao);
+                if (encontrato == null)
+                    return false;
 
-                    if (encontrato == null)
-                        return false;
+                encontrato.DeepCloneTo(objeto);
 
-                    encontrato.DeepCloneTo(objeto);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DBFactory.RollbackTransacao(minhaTransacao);
 
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    DBFactory.RollbackTransacao(minhaTransacao);
-
-                    throw ex.ReThrow();
-                }
-                finally
-                {
-                    DBFactory.FecharConexao(minhaTransacao);
-                }
-            });
+                throw ex.ReThrow();
+            }
+            finally
+            {
+                DBFactory.FecharConexao(minhaTransacao);
+            }
         }
 
         public async Task<List<T>> ListAll()
@@ -262,13 +231,13 @@ namespace AnjUx.Services
         public async Task<List<T>> List(QueryModel<T> model)
         {
             QueryExecutor executor = new(this);
-            return await RunWithLoading(async () => await executor.Listar(model));
+            return await executor.Listar(model);
         }
 
         public async Task<bool> Open(T objeto, QueryModel<T> model)
         {
             QueryExecutor executor = new(this);
-            return await RunWithLoading(async () => await executor.AbrirComJoins(objeto, model));
+            return await executor.AbrirComJoins(objeto, model);
         }
 
         public virtual async Task<bool> Save(T objeto)
