@@ -14,6 +14,7 @@ namespace AnjUx.Shared.Models.Data
 
         private string? nome;
         private string? uf;
+        private string? codigoIBGE;
 
         #endregion
 
@@ -31,6 +32,13 @@ namespace AnjUx.Shared.Models.Data
         {
             get => uf;
             set => uf = value;
+        }
+
+        [DBField()]
+        public string? CodigoIBGE
+        {
+            get => codigoIBGE;
+            set => codigoIBGE = value;
         }
 
         #endregion
