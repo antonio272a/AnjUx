@@ -1,7 +1,4 @@
-﻿
-using AnjUx.Shared.Interfaces;
-
-namespace AnjUx.ORM.Interfaces
+﻿namespace AnjUx.Shared.Interfaces
 {
     public interface IBaseModel : IDbModel
     {

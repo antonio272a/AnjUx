@@ -40,9 +40,9 @@ namespace AnjUx.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public virtual ActionResult Get(long? id)
+        public virtual async Task<ActionResult> Get(long? id)
         {
-            M? objeto = Service.GetByID(id);
+            M? objeto = await Service.GetByID(id);
 
             if (!objeto.IsPersisted())
                 return NaoEncontrado($"\"{typeof(M).Name}\" não encontrado!");
@@ -51,9 +51,9 @@ namespace AnjUx.Server.Controllers
         }
 
         [HttpGet("listar")]
-        public virtual ActionResult Listar()
+        public virtual async Task<ActionResult> Listar()
         {
-            List<M> objetos = Service.Listar();
+            List<M> objetos = await Service.ListAll();
 
             return Sucesso(objetos);
         }
@@ -67,17 +67,17 @@ namespace AnjUx.Server.Controllers
         }
 
         [HttpPut("")]
-        public virtual ActionResult Editar([FromBody] M model)
+        public virtual async Task<ActionResult> Editar([FromBody] M model)
         {
-            bool response = Service.Save(model);
+            bool response = await Service.Save(model);
 
             return Sucesso(response);
         }
 
         [HttpDelete("{id}")]
-        public virtual ActionResult Excluir(long? id)
+        public virtual async Task<ActionResult> Excluir(long? id)
         {
-            bool response = Service.Delete(id);
+            bool response = await Service.Delete(id);
 
             return Sucesso(response);
         }

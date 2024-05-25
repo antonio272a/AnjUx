@@ -1,10 +1,9 @@
-﻿using AnjUx.ORM.Interfaces;
-using AnjUx.Shared.Interfaces;
+﻿using AnjUx.Shared.Interfaces;
 using FluentMigrator.Builders.Create.Table;
 
 namespace AnjUx.Migrator
 {
-	internal static class MigratorExtensions
+    internal static class MigratorExtensions
 	{
 		/// <summary>
 		/// Cria os campos "ID", "Inserted" e "InsertUser".

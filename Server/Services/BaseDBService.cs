@@ -1,5 +1,4 @@
-﻿using AnjUx.Client.Services;
-using AnjUx.Shared.Extensions;
+﻿using AnjUx.Shared.Extensions;
 using AnjUx.ORM;
 using Dapper;
 using System.Reflection;
@@ -9,10 +8,12 @@ using AnjUx.ORM.Interfaces;
 using AnjUx.Server;
 using AnjUx.Shared.Interfaces;
 using AnjUx.Shared.Attributes;
+using AnjUx.Shared.Models;
+using AnjUx.Server.Interfaces;
 
 namespace AnjUx.Services
 {
-    public abstract class BaseDBService<T> : IBaseService, IDBFactoryConsumer
+    public abstract class BaseDBService<T> : IBaseService<T>, IDBFactoryConsumer
         where T : class, IBaseModel
     {
         public BaseDBService(DBFactory? factory = null, string? nomeUsuario = null)
@@ -152,6 +153,21 @@ namespace AnjUx.Services
             }
         }
 
+        public async Task<bool> Delete(long? id)
+        {
+            if (!id.HasValue)
+                return false;
+
+            T objeto = Activator.CreateInstance<T>();
+
+            objeto.ID = id;
+
+            if (!(await Open(objeto)))
+                return false;
+
+            return await Delete(objeto);
+        }
+
         /// <summary>
         ///   Exclui um registro/objeto do banco mediante passagem de ID do objeto
         /// </summary>
@@ -270,6 +286,15 @@ namespace AnjUx.Services
         {
             DBFactory.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        public async Task<T?> GetByID(long? id)
+        {
+            QueryModel<T> model = new("T");
+
+            model.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Igual, "T.ID", id));
+
+            return (await List(model)).FirstOrDefault();
         }
     }
 }
