@@ -175,7 +175,7 @@ namespace AnjUx.Shared.Extensions
         /// <param name="value">Lista de String que será pesquisada.</param>
         /// <param name="filters">Strings que serão comparadas na lista de string.</param>
         /// <returns>Retorna uma lista de string que contém todos os filtros passados.</returns>
-        public static IEnumerable<string> Contains(this IEnumerable<string> value, params string[] filters)
+        public static IEnumerable<string> ContainsValues(this IEnumerable<string> value, params string[] filters)
         {
             return value.Where(x =>
             {

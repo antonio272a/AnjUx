@@ -52,8 +52,8 @@ app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
+Config.Instance.Initialize(app.Configuration);
 
-
-//new Migrator(Config.Instance.ConnectionString, Config.Instance.BaseNome).Executar();
+new Migrator(Config.Instance.ConnectionString!, Config.Instance.DbName!).Executar();
 
 app.Run();

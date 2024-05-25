@@ -19,21 +19,21 @@ namespace AnjUx.Server
         {
         }
 
-        public void Initialize(IConfigurationSection config)
+        public void Initialize(IConfiguration config)
         {
             string? stringConexao = config.GetSection("ConnectionString").Value;
             if (stringConexao.IsNullOrWhiteSpace())
                 throw new ApplicationException("ConnectionString não encontrada");
 
-            string? baseNome = config.GetSection("BaseNome").Value;
-            if (baseNome.IsNullOrWhiteSpace())
+            string? dbName = config.GetSection("DbName").Value;
+            if (dbName.IsNullOrWhiteSpace())
                 throw new ApplicationException("Nome da Base não encontrado");
 
             ConnectionString = stringConexao;
-            BaseNome = baseNome;
+            DbName = dbName;
         }
 
         public string? ConnectionString { get; private set; }
-        public string? BaseNome { get; set; }
+        public string? DbName { get; set; }
     }
 }
