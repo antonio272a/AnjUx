@@ -1,4 +1,5 @@
 ﻿using AnjUx.Shared.Models.Data;
+using AnjUx.Shared.Models.Response;
 using System.Text.Json;
 
 namespace AnjUx.Server.Services
@@ -7,15 +8,15 @@ namespace AnjUx.Server.Services
     {
         private readonly string baseUrl = "https://servicodados.ibge.gov.br/api/";
 
-        public async Task<List<Municipio>> GetMunicipios()
+        public async Task<List<MunicipioIBGE>> GetMunicipios()
         {
-            using HttpClient client = new HttpClient();
+            using HttpClient client = new();
             HttpResponseMessage response = await client.GetAsync($"{baseUrl}v1/localidades/municipios");
 
             if (response.IsSuccessStatusCode)
             {
                 string content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Municipio>>(content)!;
+                return JsonSerializer.Deserialize<List<MunicipioIBGE>>(content)!;
             }
 
             string erro = await response.Content.ReadAsStringAsync();

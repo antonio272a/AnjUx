@@ -5,10 +5,10 @@ namespace AnjUx.Server.Interfaces
     public interface IBaseService<T> : IBaseService
         where T : IDbModel
     {
-        public List<T> Listar();
-        public bool Save(T model, bool ignoreIdIntegracaoCheck = false);
-        public bool Delete(long? id);
-        public T? GetByID(long? id);
+        public Task<List<T>> ListAll();
+        public Task<bool> Save(T model);
+        public Task<bool> Delete(long? id);
+        public Task<T?> GetByID(long? id);
     }
 
     public interface IBaseService : IDisposable

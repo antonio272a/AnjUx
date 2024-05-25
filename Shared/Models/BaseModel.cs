@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AnjUx.Shared.Models
 {
-    public abstract class BaseModel : DbModel, IDbModel
+    public abstract class BaseModel : DbModel, IDbModel, IBaseModel
     {
         private DateTime? updated;
         private string? updateUser;
