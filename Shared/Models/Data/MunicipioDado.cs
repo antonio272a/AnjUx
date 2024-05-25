@@ -22,7 +22,7 @@ namespace AnjUx.Shared.Models.Data
 
         #endregion
 
-        #region
+        #region Properties
 
         [DBField()]
         public Municipio? Municipio
