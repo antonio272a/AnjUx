@@ -15,6 +15,11 @@ namespace AnjUx.Shared.Extensions
             return string.IsNullOrWhiteSpace(value);
         }
 
+        public static bool IsNotNullOrWhiteSpace([NotNullWhen(false)] this string? value)
+        {
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
         public static int? ToSafeInt(this string? value)
         {
             if (value.IsNullOrWhiteSpace()) return null;
