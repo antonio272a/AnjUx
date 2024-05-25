@@ -38,7 +38,7 @@ namespace AnjUx.Shared.Extensions
                 return result;
             else
                 return null;
-        }   
+        }
 
         public static double? ToSafeDouble(this string? value)
         {
@@ -167,6 +167,25 @@ namespace AnjUx.Shared.Extensions
         public static string GetUpperCaseChars(this string input)
         {
             return new string(input.Where(char.IsUpper).ToArray());
+        }
+
+        /// <summary>
+        /// EM uma lista de string, busca todas as string que contém todos os filtros indicados.
+        /// </summary>
+        /// <param name="value">Lista de String que será pesquisada.</param>
+        /// <param name="filters">Strings que serão comparadas na lista de string.</param>
+        /// <returns>Retorna uma lista de string que contém todos os filtros passados.</returns>
+        public static IEnumerable<string> Contains(this IEnumerable<string> value, params string[] filters)
+        {
+            return value.Where(x =>
+            {
+                foreach (var filter in filters)
+                {
+                    if (!x.Contains(filter)) return false;
+                }
+
+                return true;
+            });
         }
 
     }
