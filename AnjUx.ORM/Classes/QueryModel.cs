@@ -1,10 +1,9 @@
 ﻿using AnjUx.Shared.Extensions;
-using AnjUx.ORM.Attributes;
-using AnjUx.ORM.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
 using AnjUx.Shared.Interfaces;
+using AnjUx.Shared.Attributes;
 
 namespace AnjUx.ORM.Classes
 {

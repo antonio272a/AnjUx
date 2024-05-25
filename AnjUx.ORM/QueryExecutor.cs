@@ -2,7 +2,6 @@
 using AnjUx.Shared.Extensions;
 using AnjUx.Shared.Tools;
 using Newtonsoft.Json;
-using AnjUx.ORM.Attributes;
 using AnjUx.ORM.Classes;
 using AnjUx.ORM.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +9,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using AnjUx.Shared.Interfaces;
+using AnjUx.Shared.Attributes;
 
 namespace AnjUx.ORM
 {

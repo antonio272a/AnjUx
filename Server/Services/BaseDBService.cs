@@ -3,12 +3,12 @@ using AnjUx.Shared.Extensions;
 using AnjUx.ORM;
 using Dapper;
 using System.Reflection;
-using AnjUx.ORM.Attributes;
 using Force.DeepCloner;
 using AnjUx.ORM.Classes;
 using AnjUx.ORM.Interfaces;
 using AnjUx.Server;
 using AnjUx.Shared.Interfaces;
+using AnjUx.Shared.Attributes;
 
 namespace AnjUx.Services
 {
