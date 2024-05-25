@@ -1,3 +1,72 @@
-﻿@page "/"
+﻿@using System.Reflection
+@using AnjUx.Client.Attributes
+@inject NavigationManager navigation
+@inject CoreNavBarStore navBarStore
 
-<h1>Hello, world!</h1>
+<CoreCard>
+    @foreach (HubIcon hubIcon in HubIcons)
+    {
+        <CoreButton Click="() => navigation.IrPara(hubIcon.Pagina)" Style="min-height: 40px;">
+            <div class="hub-icon-container">
+                <CoreIcon Style="font-size: 36px; height: 36px" Icon="@hubIcon.Icone" />
+                <span class="hub-icon-title">@hubIcon.Titulo</span>
+            </div>
+        </CoreButton>
+    }
+</CoreCard>
+
+@code {
+    private List<HubIcon> HubIcons { get; set; } = [];
+
+    protected override Task OnInitializedAsync()
+    {
+        GerarRotas();
+
+        navBarStore.Titulo = "Home";
+
+        return base.OnInitializedAsync();
+    }
+
+    private void GerarRotas()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
+        List<Type> paginasHub = assembly.GetTypes().Where(x => 
+            x.IsAssignableTo(typeof(ComponentBase)) && 
+            x.FullName!.StartsWith("AnjUx.Client.Pages") &&
+            x.GetCustomAttribute<HubIconAttribute>() != null
+            ).ToList();
+
+        foreach (Type pagina in paginasHub)
+        {
+            HubIconAttribute hubIcon = pagina.GetCustomAttribute<HubIconAttribute>()!;
+
+            string titulo = hubIcon.Titulo;
+            Icon icone = hubIcon.Icone;
+
+            HubIcons.Add(new HubIcon(icone, titulo, pagina));
+        }
+    }
+
+    private class HubIcon(Icon icone, string titulo, Type pagina)
+    {
+        public Icon Icone { get; private set; } = icone;
+        public string Titulo { get; private set; } = titulo;
+        public Type Pagina { get; private set; } = pagina;
+    }
+}
+
+<style>
+    .hub-icon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 80px;
+        height: 80px;
+    }
+
+    .hub-icon-title {
+        font-size: 18px;
+    }
+</style>

@@ -448,5 +448,11 @@ namespace AnjUx.Client.Shared
 
         [IconName("Manage Search")]
         ManageSearch = 137,
+
+        [IconName("Location City")]
+        City = 138,
+
+        [IconName("Apartment")]
+        Apartment = 139,
     }
 }

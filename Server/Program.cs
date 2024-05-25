@@ -54,6 +54,6 @@ app.MapFallbackToFile("index.html");
 
 
 
-new Migrator(Config.Instance.ConnectionString, Config.Instance.BaseNome).Executar();
+//new Migrator(Config.Instance.ConnectionString, Config.Instance.BaseNome).Executar();
 
 app.Run();

@@ -1,0 +1,36 @@
+﻿@inject CoreNavBarStore navBarStore
+@inject IJSRuntime jsRuntime
+@inherits LayoutComponentBase
+
+<div class="page">
+    <NavBar />
+    <main>
+        <article class="content px-4" style="background-color: #333333; min-height: 100%; padding: 1rem 0;">
+            @Body
+        </article>
+    </main>
+</div>
+
+@* Loader *@
+<CoreLoader />
+<CoreUtils />
+
+@code {
+
+    protected override Task OnInitializedAsync()
+    {
+        List<CoreNavBarItem> itensAnteriores = new()
+        {
+            new CoreNavBarItem(Icon.Back, () => jsRuntime.InvokeVoidAsync("goBack"), "Voltar")
+        };
+
+        List<CoreNavBarItem> itensPosteriores = new()
+        {
+            new CoreNavBarItem(Icon.Home, "", "", "", "Início")
+        };
+
+        navBarStore.Initialize(itensAnteriores, itensPosteriores);
+
+        return base.OnInitializedAsync();
+    }
+}
