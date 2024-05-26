@@ -33,7 +33,10 @@ namespace AnjUx.Server.Services
         public async Task AtualizarTodasEstimativasPopulacionais()
         {
             var municipioDadoService = Resolve<MunicipioDadoService>();
+            var tarefaService = Resolve<TarefaService>();
 
+            Tarefa tarefa = await tarefaService.NovaTarefa("Buscar Estimativas Populacionais de todos os municípios");
+            
             List<Municipio> municipios = await ListAll();
             List<MunicipioDado> dadosSalvos = await municipioDadoService.ListarPorTipoDado(TipoDado.Populacao);
 
@@ -77,10 +80,15 @@ namespace AnjUx.Server.Services
                 }
 
                 DBFactory.CommitTransacao(minhaTransacao);
+
+                await tarefaService.FinalizarTarefa(tarefa);
             }
             catch (Exception ex)
             {
                 DBFactory.RollbackTransacao(minhaTransacao);
+
+                await tarefaService.FalharTarefa(tarefa, ex);
+
                 throw ex.ReThrow();
             }
         }
