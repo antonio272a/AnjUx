@@ -49,7 +49,7 @@ namespace AnjUx.Server.Services
                 query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.Mes), mes));
 
             if (!municipios.IsNullOrEmpty())
-                query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Em, query, nameof(MunicipioDado.Municipio), municipios.Select(x => x.ID).ToCommaString()));
+                query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Em, query, nameof(MunicipioDado.Municipio), municipios.Select(x => x.ID).ToList()));
 
             return await List(query);
         }
@@ -64,7 +64,7 @@ namespace AnjUx.Server.Services
             query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.TipoDado), TipoDado.Populacao));
 
             if (!municipios.IsNullOrEmpty())
-                query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Em, query, nameof(MunicipioDado.Municipio), municipios.Select(x => x.ID).ToCommaString()));
+                query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Em, query, nameof(MunicipioDado.Municipio), municipios.Select(x => x.ID).ToList()));
 
             // Como podemos não ter dados de população precisos no ano, então trazemos o mais recente
             query.Filtros.Add(

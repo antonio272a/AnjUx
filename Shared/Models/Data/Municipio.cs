@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace AnjUx.Shared.Models.Data
 {
-    [SearchRoute("Buscar", "Nome")]
     [DBTable("Municipios")]
     public class Municipio : BaseModel
     {
@@ -25,6 +24,7 @@ namespace AnjUx.Shared.Models.Data
 
         #region Properties
 
+        [SearchDisplay(2)]
         [DBField()]
         public string? Nome
         {
@@ -32,6 +32,8 @@ namespace AnjUx.Shared.Models.Data
             set => nome = value;
         }
 
+        
+        [SearchDisplay(1)]
         [DBField()]
         public string? UF
         {
@@ -39,6 +41,7 @@ namespace AnjUx.Shared.Models.Data
             set => uf = value;
         }
 
+        [SearchDisplay(0)]
         [DBField()]
         [Display(Name = "Código IBGE")]
         public string? CodigoIBGE

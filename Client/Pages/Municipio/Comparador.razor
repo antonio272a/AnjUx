@@ -33,14 +33,14 @@
 
             <Columns>
                 <CoreDataGridColumn Property="(model) => model.Municipio!.FullName" Title="Município" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaInicial" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaFinal" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaInicial" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaFinal" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaVariacao" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaVariacaoPercentual" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaVariacao" />
-                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaVariacaoPercentual" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoInicialDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoFinalDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoPerCaptaInicialDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoPerCaptaFinalDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoVariacaoDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoVariacaoPercentualDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecadacaoPerCaptaVariacaoDisplay" />
+                <CoreDataGridColumn Property="(model) => model.ArrecacacaoPerCaptaVariacaoPercentualDisplay" />
 
             </Columns>
 
@@ -68,6 +68,7 @@
     private async Task Buscar()
     {
         Model = await municipioDadoService.Comparador(Request) ?? new ComparadorModel();
+        StateHasChanged();
         Buscou = true;
     }
 }

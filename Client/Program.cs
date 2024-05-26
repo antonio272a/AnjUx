@@ -24,5 +24,6 @@ Assembly assembly = Assembly.GetExecutingAssembly();
 CoreRoutes.Instance.Initialize(assembly, "AnjUx.Client.Pages");
 
 CoreRegistor.Register(builder.Services);
+CoreClientConfig.Instance.BaseGenericSearchUrl = "api/GenericSearch";
 
 await builder.Build().RunAsync();

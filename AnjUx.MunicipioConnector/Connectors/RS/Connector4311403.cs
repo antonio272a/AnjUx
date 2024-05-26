@@ -58,7 +58,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
             // Agora precisamos filtrar todos os resultados de plano de contas raiz, ex.: 1.0.0.0.00.00.00 e 2.0.0.00.0.00.00
             List<Receita>? receitas = response.Resultado?.Where(r => r.CodigoFormatado?.Replace("0", "").Replace(".", "").Length == 1).ToList();
 
-            decimal valor = receitas?.Sum(r => r.ValorArrecadado) ?? 0;
+            decimal valor = receitas?.Sum(r => r.ValorArrecadadoMensal) ?? 0;
 
             MunicipioDado dado = new()
             {
@@ -89,6 +89,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
         {
             public string? CodigoFormatado { get; set; }
             public decimal? ValorArrecadado { get; set; }
+            public decimal? ValorArrecadadoMensal { get; set; }
         }
     }
 }
