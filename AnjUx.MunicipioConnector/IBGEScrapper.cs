@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using CsvHelper;
-using ExcelDataReader;
+﻿using ExcelDataReader;
 using FluentFTP;
 using HtmlAgilityPack;
 using System.Globalization;
-using System.Text;
 using System.Data;
 using AnjUx.Shared.Extensions;
 using AnjUx.Shared.Models.Data;
@@ -32,11 +24,9 @@ class IbgeScraper
         var table = new List<Dictionary<string, string>>();
 
         var rows = doc.DocumentNode.SelectNodes("//table//tr");
+       
         if (rows == null)
-        {
-            Console.WriteLine("No table rows found.");
             return table;
-        }
 
         foreach (var row in rows.Skip(1)) // Skip header row
         {
@@ -51,12 +41,8 @@ class IbgeScraper
             };
 
             if (string.IsNullOrEmpty(data["url"]))
-            {
-                Console.WriteLine("URL not found for a row.");
                 continue;
-            }
 
-            Console.WriteLine($"Parsed row: URL={data["url"]}, Date={data["date"]}, Size={data["size"]}");
             table.Add(data);
         }
 
@@ -156,10 +142,8 @@ class IbgeScraper
             {
                 var url = urls[year][date];
 
-                Console.WriteLine($"Downloading {url} to memory");
                 using var memoryStream = DownloadFtpFileToMemory(url);
 
-                Console.WriteLine($"  Converting to database models");
                 var records = ConvertFileFromMemory(memoryStream);
 
                 // Se cair aqui é uma das tabelas do censo que é somente por estado, então ignoramos

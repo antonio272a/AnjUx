@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.Client", "Client\AnjU
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.Shared", "Shared\AnjUx.Shared.csproj", "{72AB1181-3655-42CE-811E-DDC370D16E63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnjUx.Migrator", "AnjUx.Migrator\AnjUx.Migrator.csproj", "{F494EB41-880F-41B6-B0FC-3B1B8F1BA7FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.Migrator", "AnjUx.Migrator\AnjUx.Migrator.csproj", "{F494EB41-880F-41B6-B0FC-3B1B8F1BA7FB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.ORM", "AnjUx.ORM\AnjUx.ORM.csproj", "{1DEAB81E-65A3-400F-8A78-D4353759B103}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnjUx.MunicipioConnector", "AnjUx.MunicipioConnector\AnjUx.MunicipioConnector.csproj", "{22478553-C76B-482E-A61E-AB62C5CAC589}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.MunicipioConnector", "AnjUx.MunicipioConnector\AnjUx.MunicipioConnector.csproj", "{22478553-C76B-482E-A61E-AB62C5CAC589}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{4E8C2932-A8A5-4EB3-B860-D08972767386}"
 EndProject

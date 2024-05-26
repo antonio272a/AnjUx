@@ -21,7 +21,7 @@
             <CoreDataGridColumn Property="(model) => model.UF" />
             <CoreDataGridColumn ActionColumn>
                 <Template Context="data">
-                    <CoreButton ToolTip="Atualizar Receitas" Icon="Icon.Search" Click="async () => await BuscarReceitas(data)" />
+                    <CoreButton ToolTip="Atualizar Receitas" Icon="Icon.PriceChange" Click="() => BuscarReceitas(data)" />
                 </Template>
             </CoreDataGridColumn>
         </Columns>
@@ -54,10 +54,10 @@
         Municipios = await municipioService.Buscar(Model.Nome) ?? [];
     }
 
-    private async Task BuscarReceitas(Municipio municipio)
+    private void BuscarReceitas(Municipio municipio)
     {
-        if (await municipioService.BuscarReceitas(municipio.ID))
-            notificationService.Notify(NotificacaoTipo.Sucesso, "Informações buscadas com sucesso!");
+        municipioService.RodarBackground(async () => await municipioService.BuscarReceitas(municipio.ID));
+        notificationService.Notify(NotificacaoTipo.Sucesso, $"Iniciada Busca de Receitas do Município \"{municipio.Nome}\", você pode verificar o progresso na seção de Tarefas");
     }
 
     private class SearchModel

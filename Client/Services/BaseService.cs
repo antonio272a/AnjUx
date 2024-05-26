@@ -17,6 +17,22 @@ namespace AnjUx.Client.Services
         public virtual async Task<T?> GetByID(long? id) => await MakeRequestAsync<T>(HttpMethod.Get, $"{id}");
 
         public virtual async Task<bool> Excluir(long? id) => await MakeRequestAsync<bool>(HttpMethod.Delete, $"{id}");
+
+        /// <summary>
+        /// Serve para rodar métodos que geram tarefas no banco
+        /// </summary>
+        /// <param name="action"></param>
+        public void RodarBackground(Action action) 
+        {
+            try
+            {
+                Task.Run(action);
+            }
+            catch (Exception)
+            {
+                // Como o método cria uma tarefa, o erro vai poder ser visto no log do servidor
+            }
+        }
     }
 
     public abstract class BaseService(HttpClient http, CoreNotificationService notificationService, LoadingService loadingService) : IBaseService

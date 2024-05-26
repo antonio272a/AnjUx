@@ -43,6 +43,9 @@ namespace AnjUx.Services
         public string NomeUsuario { get; set; }
         public string Table { get; set; }
 
+        protected S Resolve<S>() where S : IBaseService
+            => (S)Activator.CreateInstance(typeof(S), DBFactory, NomeUsuario)!;
+
         /// <summary>
         ///   Salva um registro/objeto do banco
         /// </summary>

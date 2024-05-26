@@ -13,7 +13,7 @@ namespace AnjUx.MunicipioConnector
 		{
 			IbgeScraper scrapper = new();
 
-            Dictionary<int, Dictionary<string, MunicipioDado>> resultado = await scrapper.Buscar(2018, 2024, municipio.CodigoIBGE);
+            Dictionary<int, Dictionary<string, MunicipioDado>> resultado = await scrapper.Buscar(_anoInicial, DateTime.Now.Year, municipio.CodigoIBGE);
 
 			List<MunicipioDado> dados = [];
 

@@ -31,23 +31,94 @@ namespace AnjUx.Server.Services
 
         public async Task<List<MunicipioDado>> BuscarReceitas(long? id)
         {
-            if (!id.HasValue)
-                throw new Exception("Município não informado!");
+            var tarefaService = Resolve<TarefaService>();
+            var municipioDadoService = Resolve<MunicipioDadoService>();
 
-            Municipio? municipio = await GetByID(id);
+            Tarefa tarefa = await tarefaService.NovaTarefa($"Buscar Receitas município \"{id}\"");
 
-            if (!municipio.IsPersisted())
-                throw new Exception("Município não encontrado!");
+            try
+            {
+                if (!id.HasValue)
+                    throw new Exception("Município não informado!");
 
-            string nomeConector = $"Connector{municipio.CodigoIBGE}";
+                Municipio? municipio = await GetByID(id);
 
-            Type tipoConector = typeof(IMunicipioConnector).Assembly.GetType($"AnjUx.MunicipioConnector.Connectors.{municipio.UF}.{nomeConector}") ?? throw new Exception("Conector não encontrado!");
+                if (!municipio.IsPersisted())
+                    throw new Exception("Município não encontrado!");
+
+                tarefa.Descricao = $"Buscar Receitas município \"{municipio.CodigoIBGE} - {municipio.Nome}\"";
+                await tarefaService.Save(tarefa);
+
+                #region Buscar Conector
+
+                string nomeConector = $"Connector{municipio.CodigoIBGE}";
+
+                Type tipoConector = typeof(IMunicipioConnector).Assembly.GetType($"AnjUx.MunicipioConnector.Connectors.{municipio.UF}.{nomeConector}") ?? throw new Exception("Conector não encontrado!");
         
-            IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector, municipio)!;
+                IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector, municipio)!;
 
-            List<MunicipioDado> dados = await conector.GetReceitas();
+                #endregion
 
-            return dados;
+                #region Buscar Dados
+
+                List<MunicipioDado> dadosSalvos = await municipioDadoService.ListarPorMunicipio(id, TipoDado.Receita);
+
+                Dictionary<string, MunicipioDado> referencia = dadosSalvos.ToDictionary(d => $"{d.Ano}-{d.Mes}");
+
+                List<MunicipioDado> dados = await conector.GetReceitas();
+
+                #endregion
+
+                #region Salvar Dados
+
+                DBFactory.NovaTransacao(out bool minhaTransacao);
+
+                try
+                {
+                    foreach (MunicipioDado dado in dados)
+                    {
+                        string chave = $"{dado.Ano}-{dado.Mes}";
+
+                        if (referencia!.TryGetValue(chave, out MunicipioDado? dadoSalvo))
+                        {
+                            if (dadoSalvo.Valor == dado.Valor)
+                                continue;
+
+                            dadoSalvo.Valor = dado.Valor;
+                            dadoSalvo.Fonte = dado.Fonte ?? "Conector Próprio";
+                            await municipioDadoService.Save(dadoSalvo);
+                        }
+                        else
+                        {
+                            dado.Municipio = municipio;
+                            dado.TipoDado = TipoDado.Receita;
+                            dado.Fonte ??= "Conector Próprio";
+                            await municipioDadoService.Save(dado);
+                        }
+                    }
+
+                    DBFactory.CommitTransacao(minhaTransacao);
+                }
+                catch (Exception ex)
+                {
+                    DBFactory.RollbackTransacao(minhaTransacao);
+                    throw ex.ReThrow();
+                }
+
+                #endregion
+
+                await tarefaService.FinalizarTarefa(tarefa);
+
+                return dados;
+            }
+            catch (Exception ex)
+            {
+                tarefa.Erro = ex.Message;
+                tarefa.Status = TarefaStatus.Erro;
+                await tarefaService.Save(tarefa);
+
+                throw ex.ReThrow();
+            }
         }
 
         public async Task AtualizarMunicipios()

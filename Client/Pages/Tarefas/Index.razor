@@ -1,0 +1,23 @@
+﻿@attribute [HubIcon(Icon.File, "Tarefas")]
+@inject TarefaService tarefaService
+
+<CoreCard>
+    <CoreDataGrid Data="@Tarefas">
+        <CoreDataGridColumn Property="(model) => model.Descricao" />
+        <CoreDataGridColumn Property="(model) => model.Status" />
+        <CoreDataGridColumn Property="(model) => model.Finalizada" />
+        <CoreDataGridColumn Property="(model) => model.Updated" />
+        <CoreDataGridColumn Property="(model) => model.Inserted" />
+    </CoreDataGrid>
+</CoreCard>
+
+@code {
+    private List<Tarefa> Tarefas { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Tarefas = await tarefaService.Listar() ?? [];
+
+        await base.OnInitializedAsync();
+    }
+}

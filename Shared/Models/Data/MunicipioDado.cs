@@ -19,6 +19,7 @@ namespace AnjUx.Shared.Models.Data
         private DateTime? dataBase;
         private int? mes;
         private int? ano;
+        private string? fonte;
 
         #endregion
 
@@ -64,6 +65,13 @@ namespace AnjUx.Shared.Models.Data
         {
             get => ano;
             set => ano = value;
+        }
+
+        [DBField()]
+        public string? Fonte
+        {
+            get => fonte;
+            set => fonte = value;
         }
 
         #endregion
