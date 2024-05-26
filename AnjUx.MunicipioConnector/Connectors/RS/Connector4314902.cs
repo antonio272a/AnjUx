@@ -6,9 +6,12 @@ using Newtonsoft.Json;
 namespace AnjUx.MunicipioConnector.Connectors.RS
 {
     [MunicipioInfo("4314902", "Porto Alegre", "RS")]
-    public class Connector4314902 : IMunicipioConnector
+    public class Connector4314902(Municipio municipio) : BaseMunicipioConnector(municipio)
     {
-        public Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
+        private readonly string baseUrl = "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=88923612-9911-43b1-b6db-27c1dc1a86a1";
+
+
+		public override async Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
         {
 			List<MunicipioDado> pibs = new();
 
@@ -40,7 +43,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                         Ano = registroAno,
                         Mes = registroMes,
                         DataBase = new DateTime(registroAno, registroMes, 1, 0, 0, 0),
-                        TipoDado = TipoDado.PIB,
+                        TipoDado = TipoDado.Receita,
                         Valor = 0,
                     };
 
@@ -54,12 +57,12 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
             return pibs;
         }
 
-        public Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
+        public override Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
         {
             throw new NotImplementedException();
         }
 
-        private class ApiResponse
+		private class ApiResponse
         {
             public ApiPIBResponseResult? Result { get; set; }
         }

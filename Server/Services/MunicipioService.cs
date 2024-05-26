@@ -5,7 +5,6 @@ using AnjUx.Services;
 using AnjUx.Shared.Extensions;
 using AnjUx.Shared.Models.Data;
 using AnjUx.Shared.Models.Response;
-using System.Reflection;
 
 namespace AnjUx.Server.Services
 {
@@ -44,7 +43,7 @@ namespace AnjUx.Server.Services
 
             Type tipoConector = typeof(IMunicipioConnector).Assembly.GetType($"AnjUx.MunicipioConnector.Connectors.{municipio.UF}.{nomeConector}") ?? throw new Exception("Conector não encontrado!");
         
-            IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector)!;
+            IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector, municipio)!;
 
             await conector.GetReceitas();
         }

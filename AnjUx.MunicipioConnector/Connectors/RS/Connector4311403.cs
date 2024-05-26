@@ -5,13 +5,13 @@ using AnjUx.Shared.Tools;
 namespace AnjUx.MunicipioConnector.Connectors.RS
 {
     [MunicipioInfo("4311403", "Lajeado", "RS")]
-    public class Connector4311403 : IMunicipioConnector
+    public class Connector4311403(Municipio municipio) : BaseMunicipioConnector(municipio)
     {
         private readonly string _baseUrl = "https://grp.lajeado.rs.gov.br/infra/apigw/transparencia/service/contabilidade/transparencia/receita/receitaArrecadada";
         private readonly List<int> _meses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         private readonly int _anoInicial = 2018;
 
-        public async Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
+        public override async Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
         {
             List<MunicipioDado> resultado = [];
 
@@ -74,7 +74,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
             return dado;
         }
 
-        public Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
+        public override Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
         {
             throw new NotImplementedException();
         }
