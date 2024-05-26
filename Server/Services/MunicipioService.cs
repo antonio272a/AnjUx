@@ -46,7 +46,7 @@ namespace AnjUx.Server.Services
         
             IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector)!;
 
-            await conector.GetPIB();
+            await conector.GetReceitas();
         }
 
         public async Task AtualizarMunicipios()

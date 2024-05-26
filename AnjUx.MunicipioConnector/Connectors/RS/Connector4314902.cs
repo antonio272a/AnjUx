@@ -8,9 +8,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
     [MunicipioInfo("4314902", "Porto Alegre", "RS")]
     public class Connector4314902 : IMunicipioConnector
     {
-        private readonly string baseUrl = "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=88923612-9911-43b1-b6db-27c1dc1a86a1";
-
-        public async Task<List<MunicipioDado>> GetPIB(int? ano = null, int? mes = null)
+        public Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
         {
 			List<MunicipioDado> pibs = new();
 
