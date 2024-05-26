@@ -62,11 +62,12 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
 
             MunicipioDado dado = new()
             {
+                Municipio = Municipio,
                 Valor = valor,
                 TipoDado = TipoDado.Receita,
                 Ano = ano,
                 Mes = mes,
-                DataBase = new DateTime(ano, mes, 1, 0, 0, 0)
+                Data = new DateTime(ano, mes, 1, 0, 0, 0)
             };
 
             return dado;

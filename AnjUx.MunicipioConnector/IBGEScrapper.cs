@@ -162,7 +162,7 @@ class IbgeScraper
                     Municipio = new Municipio() { CodigoIBGE = $"{r["COD. UF"]}{r["COD. MUNIC"]}" },
                     Ano = year,
                     Mes = 1,
-                    DataBase = new DateTime(year, 1, 1),
+                    Data = new DateTime(year, 1, 1),
                     TipoDado = TipoDado.Populacao,
                     Valor = GetPopulacao(r, chavePopulacao)
                 });

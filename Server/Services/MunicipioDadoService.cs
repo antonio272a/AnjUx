@@ -1,10 +1,11 @@
-﻿using AnjUx.ORM.Classes;
+﻿using AnjUx.ORM;
+using AnjUx.ORM.Classes;
 using AnjUx.Services;
 using AnjUx.Shared.Models.Data;
 
 namespace AnjUx.Server.Services
 {
-    public class MunicipioDadoService : BaseDBService<MunicipioDado>
+    public class MunicipioDadoService(DBFactory? factory = null, string? nomeUsuario = null) : BaseDBService<MunicipioDado>(factory, nomeUsuario)
     {
         public async Task<List<MunicipioDado>> ListarPorMunicipio(long? idMunicipio, TipoDado? tipo = null)
         {

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using AnjUx.Shared.Interfaces;
 using AnjUx.Shared.Attributes;
+using AnjUx.Shared.Models;
 
 
 namespace AnjUx.ORM
@@ -21,6 +22,7 @@ namespace AnjUx.ORM
     public class QueryBuilder
     {
         public string? UltimoSQL { get; private set; }
+        private static readonly List<string> nomeReservados = ["DataBase"];
 
         public bool SQLAtualizar<T>(T objetoAtualizado, T objetoAntigo, string tabela, string nomeUsuario)
             where T : IBaseModel
@@ -434,8 +436,10 @@ namespace AnjUx.ORM
             {
                 string fieldName = $"{alias}{prop.Name}";
                 
+                string propName = nomeReservados.Contains(prop.Name) ? $"[{prop.Name}]" : prop.Name;
+
                 if (sb.Length > 0) sb.AppendLine(", ");
-                sb.Append($"\t{alias}.{prop.Name}");
+                sb.Append($"\t{alias}.{propName}");
 
                 
                 int IndexAtual = model.ReferenciaCampos.Count;
@@ -496,7 +500,7 @@ namespace AnjUx.ORM
             Type tipo = propriedade.NonNullableType();
 
             // É de um tipo que possui ID?
-            if (tipo.IsSubclassOf(typeof(IDbModel)))
+            if (tipo.IsSubclassOf(typeof(DbModel)))
             {
                 var id = valor!.GetType().GetProperty("ID")?.GetValue(valor, null) as long?;
                 var idString = id != null ? id.ToString() : "null";

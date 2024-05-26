@@ -20,7 +20,7 @@ namespace AnjUx.Migrator.Migrations
 				.WithColumn(nameof(MunicipioDado.Municipio)).AsInt64().ForeignKey("FK_MunicipioDados_Municipios", "Municipios", "ID").Indexed().Nullable()
 				.WithColumn(nameof(MunicipioDado.TipoDado)).AsInt32().Indexed().Nullable()
 				.WithColumn(nameof(MunicipioDado.Valor)).AsDecimal().Indexed().Nullable()
-				.WithColumn(nameof(MunicipioDado.DataBase)).AsDateTime().Indexed().Nullable()
+				.WithColumn(nameof(MunicipioDado.Data)).AsDateTime().Indexed().Nullable()
 				.WithColumn(nameof(MunicipioDado.Ano)).AsInt32().Indexed().Nullable()
 				.WithColumn(nameof(MunicipioDado.Mes)).AsInt32().Indexed().Nullable();
 		}

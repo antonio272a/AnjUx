@@ -13,6 +13,6 @@ namespace AnjUx.Client.Services
             => await MakeRequestAsync<List<Municipio>>(HttpMethod.Get, $"Buscar?termo={termo}");
     
         public async Task<bool> BuscarReceitas(long? id)
-            => await MakeRequestAsync<bool>(HttpMethod.Get, $"BuscarReceitas/{id}");
+            => await MakeRequestAsync<bool>(HttpMethod.Get, $"BuscarReceitas/{id}", notify: false, disableLoading: true);
     }
 }

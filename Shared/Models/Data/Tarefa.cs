@@ -9,8 +9,12 @@ namespace AnjUx.Shared.Models.Data
         Erro = 2,
     }
 
+    [DBTable("Tarefas")]
     public class Tarefa : BaseModel
     {
+        public static implicit operator Tarefa(long? id) => new() { ID = id };
+        public static implicit operator Tarefa(long id) => new() { ID = id };
+
         #region Fields
 
         private string? descricao;

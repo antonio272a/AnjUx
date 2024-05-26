@@ -43,9 +43,9 @@ namespace AnjUx.Client.Services
         private readonly CoreNotificationService notificationService = notificationService;
         private readonly LoadingService loadingService = loadingService;
 
-        protected async Task<TResponse?> MakeRequestAsync<TResponse>(HttpMethod method, string requestUri, bool notify = true)
+        protected async Task<TResponse?> MakeRequestAsync<TResponse>(HttpMethod method, string requestUri, bool notify = true, bool disableLoading = false)
         {
-            ServiceResponse<TResponse> response = await HttpCallAsync<TResponse>(method, BuildUrl(requestUri));
+            ServiceResponse<TResponse> response = await HttpCallAsync<TResponse>(method, BuildUrl(requestUri), disableLoading);
 
             return ThreatServiceResponse(response, notify);
         }
@@ -67,11 +67,11 @@ namespace AnjUx.Client.Services
             return $"{url}{requestUri}";
         }
 
-        private async Task<ServiceResponse<TResponse>> HttpCallAsync<TResponse>(HttpMethod method, string requestUri)
+        private async Task<ServiceResponse<TResponse>> HttpCallAsync<TResponse>(HttpMethod method, string requestUri, bool disableLoading = false)
         {
             try
             {
-                loadingService.IsLoading = true;
+                if (!disableLoading) loadingService.IsLoading = true;
                 return await InternalHttpCallAsync<TResponse, object>(method, requestUri, default);
             }
             catch (Exception ex)
@@ -81,15 +81,15 @@ namespace AnjUx.Client.Services
             }
             finally
             {
-                loadingService.IsLoading = false;
+                if (!disableLoading) loadingService.IsLoading = false;
             }
         }
 
-        private async Task<ServiceResponse<TResponse>> HttpCallAsync<TResponse, TBody>(HttpMethod method, string requestUri, TBody? obj)
+        private async Task<ServiceResponse<TResponse>> HttpCallAsync<TResponse, TBody>(HttpMethod method, string requestUri, TBody? obj, bool disableLoading = false)
         {
             try
             {
-                loadingService.IsLoading = true;
+                if (!disableLoading) loadingService.IsLoading = true;
                 return await InternalHttpCallAsync<TResponse, TBody>(method, requestUri, obj);
             }
             catch (Exception ex)
@@ -99,7 +99,7 @@ namespace AnjUx.Client.Services
             }
             finally
             {
-                loadingService.IsLoading = false;
+                if(!disableLoading) loadingService.IsLoading = false;
             }
         }
 

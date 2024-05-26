@@ -3,7 +3,7 @@
 namespace AnjUx.Migrator.Migrations
 {
     [Migration(202405261252)]
-    internal class TarefasEFonte : BaseMigration
+    public class TarefasEFonte : BaseMigration
     {
         public override void Up()
         {

@@ -1,6 +1,8 @@
 ﻿@inject CoreNavBarStore navBarStore
+@inject NavigationManager navigationManager
 @inject IJSRuntime jsRuntime
 @inherits LayoutComponentBase
+@implements IDisposable
 
 <div class="page">
     <NavBar />
@@ -19,6 +21,8 @@
 
     protected override Task OnInitializedAsync()
     {
+        navigationManager.LocationChanged += HandleLocationChanged!;
+
         List<CoreNavBarItem> itensAnteriores = new()
         {
             new CoreNavBarItem(Icon.Back, () => jsRuntime.InvokeVoidAsync("goBack"), "Voltar")
@@ -31,6 +35,19 @@
 
         navBarStore.Initialize(itensAnteriores, itensPosteriores);
 
+        HandleLocationChangedInternal();
+
         return base.OnInitializedAsync();
+    }
+
+    private void HandleLocationChanged(object sender, EventArgs e)
+        => HandleLocationChangedInternal();
+
+    private void HandleLocationChangedInternal()
+        => navBarStore.SetItens();
+
+    public void Dispose()
+    {
+        navigationManager.LocationChanged -= HandleLocationChanged!;
     }
 }

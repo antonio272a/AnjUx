@@ -68,9 +68,10 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                 {
                     pib = new()
                     {
+                        Municipio = Municipio,
                         Ano = registroAno,
                         Mes = registroMes,
-                        DataBase = new DateTime(registroAno, registroMes, 1, 0, 0, 0),
+                        Data = new DateTime(registroAno, registroMes, 1, 0, 0, 0),
                         TipoDado = TipoDado.Receita,
                         Valor = 0,
                     };

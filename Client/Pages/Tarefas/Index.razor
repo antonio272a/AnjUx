@@ -1,13 +1,17 @@
 ﻿@attribute [HubIcon(Icon.File, "Tarefas")]
+@inject CoreNavBarStore navBarStore
 @inject TarefaService tarefaService
 
 <CoreCard>
     <CoreDataGrid Data="@Tarefas">
-        <CoreDataGridColumn Property="(model) => model.Descricao" />
-        <CoreDataGridColumn Property="(model) => model.Status" />
-        <CoreDataGridColumn Property="(model) => model.Finalizada" />
-        <CoreDataGridColumn Property="(model) => model.Updated" />
-        <CoreDataGridColumn Property="(model) => model.Inserted" />
+        <Columns>
+            <CoreDataGridColumn Property="(model) => model.Descricao" />
+            <CoreDataGridColumn Property="(model) => model.Status" />
+            <CoreDataGridColumn Property="(model) => model.Finalizada" />
+            <CoreDataGridColumn Property="(model) => model.Updated" />
+            <CoreDataGridColumn Property="(model) => model.Inserted" />
+            <CoreDataGridColumn Property="(model) => model.Erro" />
+        </Columns>
     </CoreDataGrid>
 </CoreCard>
 
@@ -18,6 +22,15 @@
     {
         Tarefas = await tarefaService.Listar() ?? [];
 
+        navBarStore.SetItens(new CoreNavBarItem(Icon.Delete, async () => await LimparTarefas(), "Limpar Tarefas"));
+
         await base.OnInitializedAsync();
+    }
+
+    private async Task LimparTarefas()
+    {
+        await tarefaService.Limpar();
+        Tarefas = await tarefaService.Listar() ?? [];
+        StateHasChanged();
     }
 }

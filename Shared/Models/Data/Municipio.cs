@@ -11,6 +11,9 @@ namespace AnjUx.Shared.Models.Data
     [DBTable("Municipios")]
     public class Municipio : BaseModel
     {
+        public static implicit operator Municipio(long? id) => new() { ID = id };
+        public static implicit operator Municipio(long id) => new() { ID = id };
+
         #region Fields
 
         private string? nome;

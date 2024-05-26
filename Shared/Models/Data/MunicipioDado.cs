@@ -11,12 +11,15 @@ namespace AnjUx.Shared.Models.Data
     [DBTable("MunicipioDados")]
     public class MunicipioDado : BaseModel
     {
+        public static implicit operator MunicipioDado(long? id) => new() { ID = id };
+        public static implicit operator MunicipioDado(long id) => new() { ID = id };
+
         #region Fields
 
         private Municipio? municipio;
         private TipoDado? tipoDado;
         private decimal? valor;
-        private DateTime? dataBase;
+        private DateTime? data;
         private int? mes;
         private int? ano;
         private string? fonte;
@@ -47,10 +50,10 @@ namespace AnjUx.Shared.Models.Data
         }
 
         [DBField()]
-        public DateTime? DataBase
+        public DateTime? Data
         {
-            get => dataBase;
-            set => dataBase = value;
+            get => data;
+            set => data = value;
         }
 
         [DBField()]
