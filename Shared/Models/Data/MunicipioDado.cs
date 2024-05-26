@@ -1,4 +1,5 @@
 ﻿using AnjUx.Shared.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace AnjUx.Shared.Models.Data
 {
@@ -36,6 +37,7 @@ namespace AnjUx.Shared.Models.Data
         }
 
         [DBField()]
+        [Display(Name = "Tipo de Dado")]
         public TipoDado? TipoDado
         {
             get => tipoDado;
@@ -57,6 +59,7 @@ namespace AnjUx.Shared.Models.Data
         }
 
         [DBField()]
+        [Display(Name = "Mês")]
         public int? Mes
         {
             get => mes;

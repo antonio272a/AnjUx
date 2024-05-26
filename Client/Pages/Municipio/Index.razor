@@ -23,6 +23,7 @@
             <CoreDataGridColumn ActionColumn>
                 <Template Context="data">
                     <CoreButton ToolTip="Atualizar Receitas" Icon="Icon.PriceChange" Click="() => BuscarReceitas(data)" />
+                    <CoreButton ToolTip="Dados do Município" Icon="Icon.Info" Click="() => MunicipioDados(data)" />
                 </Template>
             </CoreDataGridColumn>
         </Columns>
@@ -54,6 +55,9 @@
     {
         Municipios = await municipioService.Buscar(Model.Nome) ?? [];
     }
+
+    private void MunicipioDados(Municipio municipio)
+        => dialogService.Open(typeof(MunicipioDados), $"Dados do Município: {municipio.FullName}", parameters: new { Municipio = municipio });
 
     private void BuscarReceitas(Municipio municipio)
         => dialogService.Open(typeof(AtualizarReceitas), $"Atualizar Receitas {municipio.FullName}", parameters: new { Municipio = municipio });

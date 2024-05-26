@@ -1,0 +1,30 @@
+﻿@attribute [PartialOnly]
+@inject CoreNotificationService notificationService
+@inject CoreDialogService dialogService
+@inject MunicipioDadoService municipioDadoService
+
+<CoreCard Modal>
+	<CoreDataGrid Data="@Dados">
+		<Columns>
+			<CoreDataGridColumn Property="(model) => model.Ano" />
+			<CoreDataGridColumn Property="(model) => model.Mes" />
+			<CoreDataGridColumn Property="(model) => model.TipoDado" />
+			<CoreDataGridColumn Property="(model) => model.Valor" />
+		</Columns>
+	</CoreDataGrid>
+</CoreCard>
+
+@code {
+	[Parameter]
+	public required Municipio Municipio { get; set; }
+
+	private List<MunicipioDado> Dados { get; set; } = [];
+
+	protected override async Task OnInitializedAsync()
+	{
+		Dados = (await municipioDadoService.ListarPorMunicipio(Municipio?.ID) ?? [])
+			.OrderBy(d => d.Ano)
+			.ThenBy(d => d.Mes)
+			.ToList();
+	}
+}
