@@ -32,6 +32,13 @@ namespace AnjUx.Server.Services
             return await Save(tarefa);
         }
 
+        public async Task FalharTarefa(Tarefa tarefa, Exception ex)
+        {
+            tarefa.Erro = ex.Message;
+            tarefa.Status = TarefaStatus.Erro;
+            await Save(tarefa);
+        }
+
         public override void Validate(Tarefa objeto)
         {
             if (objeto.Status == null)

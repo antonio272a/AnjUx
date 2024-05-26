@@ -1,0 +1,59 @@
+﻿@attribute [HubIcon(Icon.City, "Ações")]
+@inject CoreNavBarStore navBarStore
+@inject CoreNotificationService notificationService
+@inject MunicipioService municipioService
+
+<CoreCard>
+    @foreach (BotaoAcao botao in Botoes)
+    {
+        <CoreButton Click="botao.Acao" ToolTip="@botao.Tooltip">
+            <div class="botao-acao-container">
+                <CoreIcon Style="font-size: 36px; height: 36px" Icon="@botao.Icone" />
+                <span class="botao-acao-title">@botao.Titulo</span>
+            </div>
+        </CoreButton>
+    }
+</CoreCard>
+
+@code {
+    private List<BotaoAcao> Botoes { get; set; } = [];
+
+    protected override Task OnInitializedAsync()
+    {
+        navBarStore.Titulo = "Ações";
+
+        Botoes.Add(new BotaoAcao(Icon.Payments, "Atualizar Receitas", AtualizarReceitas, "Atualiza as Receitas de todos os Municípios (pode levar um tempo)"));
+
+        return base.OnInitializedAsync();
+    }
+
+    private void AtualizarReceitas()
+    {
+        municipioService.RodarBackground(async () => await municipioService.AtualizarTodasReceitas());
+        notificationService.Notify(NotificacaoTipo.Sucesso, "Foi criada uma tarefa para atualizar as Receitas de todos os Municípios, você pode conferir o resultado na seção de Tarefas");
+
+    }
+
+    private class BotaoAcao(Icon icone, string titulo, Action acao, string? tooltip = null)
+    {
+        public Icon Icone { get; private set; } = icone;
+        public string Titulo { get; private set; } = titulo;
+        public Action Acao { get; private set; } = acao;
+        public string? Tooltip { get; private set; } = tooltip;
+    }
+}
+
+<style>
+    .botao-acao-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 80px;
+        height: 80px;
+    }
+
+    .botao-acao-title {
+        font-size: 18px;
+    }
+</style>

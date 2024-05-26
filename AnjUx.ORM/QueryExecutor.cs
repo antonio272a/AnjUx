@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using AnjUx.Shared.Interfaces;
 using AnjUx.Shared.Attributes;
+using AnjUx.Shared.Models;
 
 namespace AnjUx.ORM
 {
@@ -176,7 +177,7 @@ namespace AnjUx.ORM
             foreach (PropertyInfo prop in propsPais)
             {
                 // Caso não seja um DBModel, não precisamos mesclar
-                if (!prop.PropertyType.IsSubclassOf(typeof(IDbModel))) continue;
+                if (!prop.PropertyType.IsSubclassOf(typeof(DbModel))) continue;
 
                 var subObjetoSalvo = prop.GetValue(objetoSalvo)!;
                 var subObbjetoNovo = prop.GetValue(objetoNovo)!;
@@ -274,7 +275,7 @@ namespace AnjUx.ORM
                 if (valor == null || (valor.GetType() == typeof(DBNull))) continue;
 
                 // Se não for um objeto de DBModel
-                if (!prop.PropertyType.IsSubclassOf(typeof(IDbModel)))
+                if (!prop.PropertyType.IsSubclassOf(typeof(DbModel)))
                 {
                     var tipoNaoNulo = prop.NonNullableType();
                     var atributoSerializavel = prop.GetCustomAttribute(typeof(SerializableAttribute));

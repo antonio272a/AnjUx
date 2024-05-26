@@ -14,5 +14,8 @@ namespace AnjUx.Client.Services
     
         public async Task<bool> BuscarReceitas(long? id, int? ano = null, int? mes = null)
             => await MakeRequestAsync<bool>(HttpMethod.Get, $"BuscarReceitas/{id}?ano={ano}&mes={mes}", notify: false, disableLoading: true);
+
+        public async Task<bool> AtualizarTodasReceitas()
+            => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarTodasReceitas", notify: false, disableLoading: true);
     }
 }

@@ -38,5 +38,14 @@ namespace AnjUx.Server.Controllers
 
             return Sucesso(municipios);
         }
+
+        [HttpGet("AtualizarTodasReceitas")]
+        public async Task<ActionResult> AtualizarTodasReceitas()
+        {
+            await Service.AtualizarTodasReceitas();
+
+            return Sucesso(true);
+        }
+
     }
 }
