@@ -30,6 +30,61 @@ namespace AnjUx.Server.Services
             return await List(query);
         }
 
+        public async Task AtualizarTodasEstimativasPopulacionais()
+        {
+            var municipioDadoService = Resolve<MunicipioDadoService>();
+
+            List<Municipio> municipios = await ListAll();
+            List<MunicipioDado> dadosSalvos = await municipioDadoService.ListarPorTipoDado(TipoDado.Populacao);
+
+            Dictionary<string, MunicipioDado> dictDadosSalvos = dadosSalvos.ToDictionary(d => $"{d.Municipio!.CodigoIBGE}-{d.Ano}-{d.Mes}");
+
+            IBGEScraper scrapper = new();
+            Dictionary<int, Dictionary<string, MunicipioDado>> resultados = await scrapper.BuscarEstimativarPopulacionais();
+
+            DBFactory.NovaTransacao(out bool minhaTransacao);
+
+            try
+            {
+                foreach (int key in resultados.Keys)
+                {
+                    Dictionary<string, MunicipioDado> resultadosAno = resultados[key];
+
+                    foreach (Municipio municipio in municipios)
+                    {
+                        MunicipioDado? resultado = resultadosAno!.ValueIfKeyExists(municipio.CodigoIBGE);
+
+                        if (resultado == null)
+                            continue;
+
+                        if (dictDadosSalvos!.TryGetValue($"{municipio.CodigoIBGE}-{resultado.Ano}-{resultado.Mes}", out MunicipioDado? dadoSalvo))
+                        {
+                            if (dadoSalvo.Valor == resultado.Valor)
+                                continue;
+
+                            dadoSalvo.Valor = resultado.Valor;
+                            dadoSalvo.Fonte = "IBGE";
+                            await municipioDadoService.Save(dadoSalvo);
+                        }
+                        else
+                        {
+                            resultado.Municipio = municipio;
+                            resultado.TipoDado = TipoDado.Populacao;
+                            resultado.Fonte = "IBGE";
+                            await municipioDadoService.Save(resultado);
+                        }
+                    }
+                }
+
+                DBFactory.CommitTransacao(minhaTransacao);
+            }
+            catch (Exception ex)
+            {
+                DBFactory.RollbackTransacao(minhaTransacao);
+                throw ex.ReThrow();
+            }
+        }
+
         public async Task AtualizarTodasReceitas()
         {
             var tarefaService = Resolve<TarefaService>();

@@ -17,5 +17,8 @@ namespace AnjUx.Client.Services
 
         public async Task<bool> AtualizarTodasReceitas()
             => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarTodasReceitas", notify: false, disableLoading: true);
+
+        public async Task<bool> AtualizarTodasEstimativasPopulacionais()
+            => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarTodasEstimativasPopulacionais", notify: false, disableLoading: true);
     }
 }

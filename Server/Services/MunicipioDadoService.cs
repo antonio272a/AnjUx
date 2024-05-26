@@ -21,5 +21,18 @@ namespace AnjUx.Server.Services
 
             return await List(query);
         }
+
+        public async Task<List<MunicipioDado>> ListarPorTipoDado(TipoDado? tipo)
+        {
+            QueryModel<MunicipioDado> query = new();
+
+            Join joinM = new(typeof(Municipio));
+            query.AddJoins(joinM);
+
+            if (tipo.HasValue)
+                query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.TipoDado), tipo));
+
+            return await List(query);
+        }
     }
 }

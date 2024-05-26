@@ -47,5 +47,13 @@ namespace AnjUx.Server.Controllers
             return Sucesso(true);
         }
 
+        [HttpGet("AtualizarTodasEstimativasPopulacionais")]
+        public async Task<ActionResult> AtualizarTodasEstimativasPopulacionais()
+        {
+            await Service.AtualizarTodasEstimativasPopulacionais();
+
+            return Sucesso(true);
+        }
+
     }
 }

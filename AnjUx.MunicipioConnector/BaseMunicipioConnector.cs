@@ -11,9 +11,9 @@ namespace AnjUx.MunicipioConnector
 
         public virtual async Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
 		{
-			IbgeScraper scrapper = new();
+			IBGEScraper scrapper = new();
 
-            Dictionary<int, Dictionary<string, MunicipioDado>> resultado = await scrapper.Buscar(_anoInicial, DateTime.Now.Year, municipio.CodigoIBGE);
+            Dictionary<int, Dictionary<string, MunicipioDado>> resultado = await scrapper.BuscarEstimativarPopulacionais(_anoInicial, DateTime.Now.Year, municipio.CodigoIBGE);
 
 			List<MunicipioDado> dados = [];
 

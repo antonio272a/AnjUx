@@ -74,6 +74,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                         Data = new DateTime(registroAno, registroMes, 1, 0, 0, 0),
                         TipoDado = TipoDado.Receita,
                         Valor = 0,
+                        Fonte = "API Porto Alegre"
                     };
 
                     pibs.Add(pib);

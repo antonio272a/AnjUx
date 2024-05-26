@@ -67,7 +67,8 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                 TipoDado = TipoDado.Receita,
                 Ano = ano,
                 Mes = mes,
-                Data = new DateTime(ano, mes, 1, 0, 0, 0)
+                Data = new DateTime(ano, mes, 1, 0, 0, 0),
+                Fonte = "Portal da Transparência Lajeado"
             };
 
             return dado;
