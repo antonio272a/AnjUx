@@ -53,8 +53,8 @@
 
     private ComparadorModel Model { get; set; } = new();
 
-    private string TextoInicial => Model.AnoInicial.HasValue ? $"{Model.AnoInicial}{(Model.MesInicial.HasValue ? $"- {((Mes)Model.MesInicial).GetDescriptionEnum()}" : "")}" : "Sem filtro";
-    private string TextoFinal => Model.AnoFinal.HasValue ? $"{Model.AnoFinal}{(Model.MesFinal.HasValue ? $"- {((Mes)Model.MesFinal).GetDescriptionEnum()}" : "")}" : "Sem filtro";
+    private string TextoInicial => Model.AnoInicial.HasValue ? $"{Model.AnoInicial}{(Model.MesInicial.HasValue ? $" - {((Mes)Model.MesInicial).GetDescriptionEnum()}" : "")}" : "Sem filtro";
+    private string TextoFinal => Model.AnoFinal.HasValue ? $"{Model.AnoFinal}{(Model.MesFinal.HasValue ? $" - {((Mes)Model.MesFinal).GetDescriptionEnum()}" : "")}" : "Sem filtro";
 
     private List<Municipio> Municipios { get; set; } = [];
 
