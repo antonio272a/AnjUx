@@ -8,5 +8,8 @@ namespace AnjUx.Client.Services
 
         public async Task<bool> AtualizarMunicipios()
             => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarMunicipios");
+
+        public async Task<List<Municipio>?> Buscar(string? termo)
+            => await MakeRequestAsync<List<Municipio>>(HttpMethod.Get, $"Buscar?termo={termo}");
     }
 }

@@ -4,6 +4,16 @@
 
 <CoreCard>
     <CoreDataGrid Data="@Municipios">
+        <HeaderTemplate>
+            <CoreForm Model="@Model">
+                <CoreRow>
+                    <EditorFor Property="(model) => model.Nome" />
+                </CoreRow>
+                <CoreRow Actions>
+                    <CoreButton Icon="Icon.Search" ToolTip="Buscar" Click="async () => await BuscarMunicipios()" />
+                </CoreRow>
+            </CoreForm>
+        </HeaderTemplate>
         <Columns>
             <CoreDataGridColumn Property="(model) => model.CodigoIBGE" />
             <CoreDataGridColumn Property="(model) => model.Nome" />
@@ -13,6 +23,8 @@
 </CoreCard>
 
 @code {
+    private SearchModel Model = new();
+
     private List<Municipio> Municipios { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
@@ -29,5 +41,15 @@
     private async Task GetMunicipios()
     {
         Municipios = await municipioService.Listar() ?? [];
+    }
+
+    private async Task BuscarMunicipios()
+    {
+        Municipios = await municipioService.Buscar(Model.Nome) ?? [];
+    }
+
+    private class SearchModel
+    {
+        public string? Nome { get; set; }
     }
 }

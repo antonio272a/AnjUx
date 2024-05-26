@@ -14,5 +14,13 @@ namespace AnjUx.Server.Controllers
 
             return Sucesso(true);
         }
+
+        [HttpGet("Buscar")]
+        public async Task<ActionResult> Buscar(string? termo)
+        {
+            List<Municipio>? municipios = await Service.Buscar(termo);
+
+            return Sucesso(municipios);
+        }
     }
 }
