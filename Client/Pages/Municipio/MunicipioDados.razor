@@ -5,11 +5,25 @@
 
 <CoreCard Modal>
 	<CoreDataGrid Data="@Dados">
+		<HeaderTemplate>
+			<CoreForm Model="@Search">
+				<CoreRow>
+					<EditorFor Property="(model) => model.Ano" />
+					<EditorFor Property="(model) => model.Mes" />
+					<EditorFor Property="(model) => model.Tipo" />
+				</CoreRow>
+
+				<CoreRow Actions>
+					<CoreButton ButtonType="ButtonType.Submit" Icon="Icon.Search" ToolTip="Buscar" Click="async () => await ListarPorMunicipio()" />
+				</CoreRow>
+			</CoreForm>
+		</HeaderTemplate>
 		<Columns>
 			<CoreDataGridColumn Property="(model) => model.Ano" />
-			<CoreDataGridColumn Property="(model) => model.Mes" />
+			<CoreDataGridColumn Property="(model) => (Mes?)model.Mes" Title="Mês" />
 			<CoreDataGridColumn Property="(model) => model.TipoDado" />
 			<CoreDataGridColumn Property="(model) => model.Valor" />
+			<CoreDataGridColumn Property="(model) => model.Fonte" />
 		</Columns>
 	</CoreDataGrid>
 </CoreCard>
@@ -19,12 +33,25 @@
 	public required Municipio Municipio { get; set; }
 
 	private List<MunicipioDado> Dados { get; set; } = [];
+	private SearchModel Search { get; set; } = new();
 
 	protected override async Task OnInitializedAsync()
 	{
-		Dados = (await municipioDadoService.ListarPorMunicipio(Municipio?.ID) ?? [])
-			.OrderBy(d => d.Ano)
-			.ThenBy(d => d.Mes)
+		await ListarPorMunicipio();
+	}
+
+	private async Task ListarPorMunicipio()
+	{
+		Dados = (await municipioDadoService.ListarPorMunicipio(Municipio.ID, Search.Tipo, Search.Ano, Search.Mes) ?? [])
+			.OrderByDescending(d => d.Ano)
+			.ThenByDescending(d => d.Mes)
 			.ToList();
+	}
+
+	private class SearchModel
+	{
+		public TipoDado? Tipo { get; set; }
+		public int? Ano { get; set; }
+		public Mes? Mes { get; set; }
 	}
 }
