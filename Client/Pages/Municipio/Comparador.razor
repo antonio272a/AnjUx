@@ -1,0 +1,73 @@
+﻿@attribute [HubIcon(Icon.Checklist, "Comparador")]
+@inject CoreNavBarStore navBarStore
+@inject MunicipioDadoService municipioDadoService
+
+
+<CoreCard>
+    <CoreForm Model="@Request">
+        <CoreRow>
+            <EditorFor Property="(model) => model.AnoInicial" Label="Ano Inicial" />
+            <EditorFor Property="(model) => model.MesInicial" Label="Mês Inicial" />
+        </CoreRow>
+        <CoreRow>
+            <EditorFor Property="(model) => model.AnoFinal" Label="AnoFinal" />
+            <EditorFor Property="(model) => model.MesFinal" Label="Mês Final" />
+        </CoreRow>
+        <CoreRow>
+            <EditorFor PropertyList="(model) => model.Municipios" Label="Municípios" />
+        </CoreRow>
+        <CoreRow Actions>
+            <CoreButton Icon="Icon.Search" Text="Buscar" Click="Buscar" />
+        </CoreRow>
+    </CoreForm>
+    
+    @if (Buscou)
+    {
+        <CoreDivider Text="Resultados" />
+
+        <CoreDataGrid Data="Model.Municipios">
+            <HeaderTemplate>
+                <p>@TextoInicial</p>
+                <p>@TextoFinal</p>
+            </HeaderTemplate>
+
+            <Columns>
+                <CoreDataGridColumn Property="(model) => model.Municipio!.FullName" Title="Município" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaInicial" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaFinal" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaInicial" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaFinal" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaVariacao" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaVariacaoPercentual" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaVariacao" />
+                <CoreDataGridColumn Property="(model) => model.ReceitaPerCaptaVariacaoPercentual" />
+
+            </Columns>
+
+        </CoreDataGrid>
+    }
+</CoreCard>
+@code {
+    private bool Buscou { get; set; } = false;
+    private RequestComparador Request { get; set; } = new();
+
+    private ComparadorModel Model { get; set; } = new();
+
+    private string TextoInicial => Model.AnoInicial.HasValue ? $"{Model.AnoInicial}{(Model.MesInicial.HasValue ? $"- {((Mes)Model.MesInicial).GetDescriptionEnum()}" : "")}" : "Sem filtro";
+    private string TextoFinal => Model.AnoFinal.HasValue ? $"{Model.AnoFinal}{(Model.MesFinal.HasValue ? $"- {((Mes)Model.MesFinal).GetDescriptionEnum()}" : "")}" : "Sem filtro";
+
+    private List<Municipio> Municipios { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        navBarStore.Titulo = "Comparador";
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task Buscar()
+    {
+        Model = await municipioDadoService.Comparador(Request) ?? new ComparadorModel();
+        Buscou = true;
+    }
+}

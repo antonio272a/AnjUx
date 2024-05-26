@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace AnjUx.Shared.Models.Data
 {
+    [SearchRoute("Buscar", "Nome")]
     [DBTable("Municipios")]
     public class Municipio : BaseModel
     {
