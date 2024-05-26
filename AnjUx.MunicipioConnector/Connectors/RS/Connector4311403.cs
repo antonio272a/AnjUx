@@ -8,15 +8,13 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
     public class Connector4311403(Municipio municipio) : BaseMunicipioConnector(municipio)
     {
         private readonly string _baseUrl = "https://grp.lajeado.rs.gov.br/infra/apigw/transparencia/service/contabilidade/transparencia/receita/receitaArrecadada";
-        private readonly List<int> _meses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        private readonly int _anoInicial = 2018;
 
         public override async Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
         {
             List<MunicipioDado> resultado = [];
 
             if (ano != null && mes != null)
-                return [await GetPIBInternal(ano.Value, mes.Value)];
+                return [await GetReceitasInternal(ano.Value, mes.Value)];
 
             if (mes != null)
                 throw new InvalidOperationException("Não é possível informar somente o mês!");
@@ -27,7 +25,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                 List<int> meses = anoAtual ? _meses.Where(m => m <= DateTime.Now.Month).ToList() : _meses;
 
                 foreach (int _mes in _meses)
-                    resultado.Add(await GetPIBInternal(ano.Value, _mes));
+                    resultado.Add(await GetReceitasInternal(ano.Value, _mes));
             }
             else
             {
@@ -37,7 +35,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
                     List<int> meses = anoAtual ? _meses.Where(m => m <= DateTime.Now.Month).ToList() : _meses;
 
                     foreach (int _mes in meses)
-                        resultado.Add(await GetPIBInternal(_ano, _mes));
+                        resultado.Add(await GetReceitasInternal(_ano, _mes));
 
                 }
             }
@@ -45,7 +43,7 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
             return resultado;
         }
 
-        public async Task<MunicipioDado> GetPIBInternal(int ano, int mes)
+        public async Task<MunicipioDado> GetReceitasInternal(int ano, int mes)
         {
             HttpClientWrapper client = new(_baseUrl);
 
@@ -72,11 +70,6 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
             };
 
             return dado;
-        }
-
-        public override Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
-        {
-            throw new NotImplementedException();
         }
 
         private class BuscaPIBRequest

@@ -29,7 +29,7 @@ namespace AnjUx.Server.Services
             return await List(query);
         }
 
-        public async Task BuscarInformacoes(long? id)
+        public async Task<List<MunicipioDado>> BuscarReceitas(long? id)
         {
             if (!id.HasValue)
                 throw new Exception("Município não informado!");
@@ -45,7 +45,9 @@ namespace AnjUx.Server.Services
         
             IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector, municipio)!;
 
-            await conector.GetReceitas();
+            List<MunicipioDado> dados = await conector.GetReceitas();
+
+            return dados;
         }
 
         public async Task AtualizarMunicipios()

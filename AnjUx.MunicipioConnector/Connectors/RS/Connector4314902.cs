@@ -10,25 +10,53 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
     {
         private readonly string baseUrl = "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=88923612-9911-43b1-b6db-27c1dc1a86a1";
 
-
 		public override async Task<List<MunicipioDado>> GetReceitas(int? ano = null, int? mes = null)
         {
-			List<MunicipioDado> pibs = new();
+            List<MunicipioDado> resultado = [];
 
-            DateTime hoje = DateTime.Now;
+            if (ano != null && mes != null)
+                return [.. await GetReceitasInternal(ano.Value, mes.Value)];
 
-            ano ??= hoje.Year - 1;
-            mes ??= hoje.Month;
+            if (mes != null)
+                throw new InvalidOperationException("Não é possível informar somente o mês!");
 
-			var filters = new
-			{
-				ano,
-				mes
-			};
+            if (ano != null)
+            {
+                bool anoAtual = ano == DateTime.Now.Year;
+                List<int> meses = anoAtual ? _meses.Where(m => m <= DateTime.Now.Month).ToList() : _meses;
+
+                foreach (int _mes in _meses)
+                    resultado.AddRange(await GetReceitasInternal(ano.Value, _mes));
+            }
+            else
+            {
+                for (int _ano = _anoInicial; _ano <= DateTime.Now.Year; _ano++)
+                {
+                    bool anoAtual = _ano == DateTime.Now.Year;
+                    List<int> meses = anoAtual ? _meses.Where(m => m <= DateTime.Now.Month).ToList() : _meses;
+
+                    foreach (int _mes in meses)
+                        resultado.AddRange(await GetReceitasInternal(_ano, _mes));
+
+                }
+            }
+
+            return resultado;
+        }
+
+        private async Task<List<MunicipioDado>> GetReceitasInternal(int ano, int mes)
+        {
+            List<MunicipioDado> pibs = [];
+
+            var filters = new
+            {
+                ano,
+                mes
+            };
 
             string filtersJSON = JsonConvert.SerializeObject(filters);
 
-			var resultado = await new HttpClientWrapper($"{baseUrl}&filters={Uri.EscapeDataString(filtersJSON)}").Get<ApiResponse>(string.Empty);
+            var resultado = await new HttpClientWrapper($"{baseUrl}&filters={Uri.EscapeDataString(filtersJSON)}").Get<ApiResponse>(string.Empty);
 
             foreach (var registro in resultado.Result?.Records ?? new())
             {
@@ -49,17 +77,12 @@ namespace AnjUx.MunicipioConnector.Connectors.RS
 
                     pibs.Add(pib);
 
-				}
+                }
 
                 pib.Valor += registro.Valor_Arrecadado;
             }
 
             return pibs;
-        }
-
-        public override Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null)
-        {
-            throw new NotImplementedException();
         }
 
 		private class ApiResponse

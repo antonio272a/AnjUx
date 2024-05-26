@@ -23,10 +23,10 @@ namespace AnjUx.Server.Controllers
             return Sucesso(municipios);
         }
 
-        [HttpGet("BuscarInformacoes/{id}")]
-        public async Task<ActionResult> BuscarInformacoes(long? id)
+        [HttpGet("BuscarReceitas/{id}")]
+        public async Task<ActionResult> BuscarReceitas(long? id)
         {
-            await Service.BuscarInformacoes(id);
+            await Service.BuscarReceitas(id);
 
             return Sucesso(true);
         }
