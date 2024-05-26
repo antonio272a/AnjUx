@@ -66,7 +66,7 @@ namespace AnjUx.Services
             try
             {
                 await DBFactory.Connection!.ExecuteAsync(queryBuilder.UltimoSQL!, transaction: DBFactory.Transaction);
-                var query = $"SELECT * FROM {Table} WHERE ID = last_insert_rowid();";
+                var query = $"SELECT * FROM {Table} WHERE ID = @@IDENTITY";
                 var objetoSalvo = DBFactory.Connection!.QueryFirst<T>(query, transaction: DBFactory.Transaction);
 
                 // Se o objeto foi salvo corretamente, transferimos seu ID e valores de Insert e Update
