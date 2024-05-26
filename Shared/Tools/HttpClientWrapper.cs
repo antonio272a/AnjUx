@@ -18,11 +18,11 @@ namespace AnjUx.Shared.Tools
 
 			if (response.IsSuccessStatusCode)
 			{
-				string content = await response.Content.ReadAsStringAsync();
+				string content = response.Content.ReadAsStringAsync().Result;
 				return JsonConvert.DeserializeObject<T>(content)!;
 			}
 
-			string erro = await response.Content.ReadAsStringAsync();
+			string erro = response.Content.ReadAsStringAsync().Result;
 
 			throw new Exception($"Erro ao buscar {resource}: {erro}");
 		}
