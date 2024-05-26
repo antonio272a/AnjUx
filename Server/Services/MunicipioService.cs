@@ -4,6 +4,7 @@ using AnjUx.Services;
 using AnjUx.Shared.Extensions;
 using AnjUx.Shared.Models.Data;
 using AnjUx.Shared.Models.Response;
+using System.Reflection;
 
 namespace AnjUx.Server.Services
 {
@@ -17,6 +18,21 @@ namespace AnjUx.Server.Services
                 query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Like, query, nameof(Municipio.Nome), termo));
 
             return await List(query);
+        }
+
+        public async Task BuscarInformacoes(long? id)
+        {
+            if (!id.HasValue)
+                throw new Exception("Município não informado!");
+
+            Municipio? municipio = await GetByID(id);
+
+            if (!municipio.IsPersisted())
+                throw new Exception("Município não encontrado!");
+
+            string nomeConector = $"Connector{municipio.CodigoIBGE}";
+
+            Assembly.GetExecutingAssembly().GetType($"AnjUx.MunicipioConnector.Connectors.{nomeConector}");
         }
 
         public async Task AtualizarMunicipios()

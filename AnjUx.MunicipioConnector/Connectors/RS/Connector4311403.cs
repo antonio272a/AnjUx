@@ -1,7 +1,7 @@
 ﻿using AnjUx.MunicipioConnector.Attributes;
 using AnjUx.Shared.Models.Data;
 
-namespace AnjUx.MunicipioConnector.RS
+namespace AnjUx.MunicipioConnector.Connectors.RS
 {
     [MunicipioInfo("4311403", "Lajeado", "RS")]
     public class Connector4311403 : IMunicipioConnector
