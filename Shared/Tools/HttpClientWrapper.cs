@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net.Http.Json;
 
 namespace AnjUx.Shared.Tools
 {
@@ -26,5 +27,19 @@ namespace AnjUx.Shared.Tools
 
 			throw new Exception($"Erro ao buscar {resource}: {erro}");
 		}
+
+		public async Task<R> Post<T, R>(string? resource, T? body)
+		{
+			HttpResponseMessage response = await HttpClient.PostAsJsonAsync(resource, body);
+
+			if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<R>(content)!;
+            }
+
+			string erro = await response.Content.ReadAsStringAsync();
+			throw new Exception($"Erro ao buscar {resource}: {erro}");
+		} 
 	}
 }

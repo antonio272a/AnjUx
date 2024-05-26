@@ -4,7 +4,7 @@ namespace AnjUx.Shared.Models.Data
 {
     public enum TipoDado : int
     {
-        PIB = 0,
+        Receita = 0,
         Populacao = 1,
     }
 
