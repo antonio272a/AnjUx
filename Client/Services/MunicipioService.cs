@@ -11,5 +11,8 @@ namespace AnjUx.Client.Services
 
         public async Task<List<Municipio>?> Buscar(string? termo)
             => await MakeRequestAsync<List<Municipio>>(HttpMethod.Get, $"Buscar?termo={termo}");
+    
+        public async Task<bool> BuscarInformacoes(long? id)
+            => await MakeRequestAsync<bool>(HttpMethod.Get, $"BuscarInformacoes/{id}");
     }
 }

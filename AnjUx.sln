@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnjUx.ORM", "AnjUx.ORM\AnjU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnjUx.MunicipioConnector", "AnjUx.MunicipioConnector\AnjUx.MunicipioConnector.csproj", "{22478553-C76B-482E-A61E-AB62C5CAC589}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{4E8C2932-A8A5-4EB3-B860-D08972767386}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F494EB41-880F-41B6-B0FC-3B1B8F1BA7FB} = {4E8C2932-A8A5-4EB3-B860-D08972767386}
+		{1DEAB81E-65A3-400F-8A78-D4353759B103} = {4E8C2932-A8A5-4EB3-B860-D08972767386}
+		{22478553-C76B-482E-A61E-AB62C5CAC589} = {4E8C2932-A8A5-4EB3-B860-D08972767386}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2697289B-C889-42BC-A067-261858BC4568}

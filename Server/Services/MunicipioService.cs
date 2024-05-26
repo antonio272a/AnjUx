@@ -1,4 +1,5 @@
-﻿using AnjUx.ORM;
+﻿using AnjUx.MunicipioConnector;
+using AnjUx.ORM;
 using AnjUx.ORM.Classes;
 using AnjUx.Services;
 using AnjUx.Shared.Extensions;
@@ -20,6 +21,15 @@ namespace AnjUx.Server.Services
             return await List(query);
         }
 
+        public async Task<List<Municipio>> Listar(int? top)
+        {
+            QueryModel<Municipio> query = new("M");
+
+            query.Top = top;
+
+            return await List(query);
+        }
+
         public async Task BuscarInformacoes(long? id)
         {
             if (!id.HasValue)
@@ -32,7 +42,11 @@ namespace AnjUx.Server.Services
 
             string nomeConector = $"Connector{municipio.CodigoIBGE}";
 
-            Assembly.GetExecutingAssembly().GetType($"AnjUx.MunicipioConnector.Connectors.{nomeConector}");
+            Type tipoConector = typeof(IMunicipioConnector).Assembly.GetType($"AnjUx.MunicipioConnector.Connectors.{municipio.UF}.{nomeConector}") ?? throw new Exception("Conector não encontrado!");
+        
+            IMunicipioConnector conector = (IMunicipioConnector)Activator.CreateInstance(tipoConector)!;
+
+            await conector.GetPIB();
         }
 
         public async Task AtualizarMunicipios()

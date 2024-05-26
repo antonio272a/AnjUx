@@ -22,5 +22,21 @@ namespace AnjUx.Server.Controllers
 
             return Sucesso(municipios);
         }
+
+        [HttpGet("BuscarInformacoes/{id}")]
+        public async Task<ActionResult> BuscarInformacoes(long? id)
+        {
+            await Service.BuscarInformacoes(id);
+
+            return Sucesso(true);
+        }
+
+        [HttpGet("listar")]
+        public override async Task<ActionResult> Listar()
+        {
+            List<Municipio> municipios = await Service.Listar(100);
+
+            return Sucesso(municipios);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@attribute [HubIcon(Icon.City, "Municípios")]
 @inject MunicipioService municipioService
 @inject CoreNavBarStore navBarStore
+@inject CoreNotificationService notificationService
 
 <CoreCard>
     <CoreDataGrid Data="@Municipios">
@@ -18,6 +19,11 @@
             <CoreDataGridColumn Property="(model) => model.CodigoIBGE" />
             <CoreDataGridColumn Property="(model) => model.Nome" />
             <CoreDataGridColumn Property="(model) => model.UF" />
+            <CoreDataGridColumn ActionColumn>
+                <Template Context="data">
+                    <CoreButton ToolTip="Buscar Informações" Icon="Icon.Search" Click="async () => await BuscarInformacoes(data)" />
+                </Template>
+            </CoreDataGridColumn>
         </Columns>
     </CoreDataGrid>
 </CoreCard>
@@ -46,6 +52,12 @@
     private async Task BuscarMunicipios()
     {
         Municipios = await municipioService.Buscar(Model.Nome) ?? [];
+    }
+
+    private async Task BuscarInformacoes(Municipio municipio)
+    {
+        if (await municipioService.BuscarInformacoes(municipio.ID))
+            notificationService.Notify(NotificacaoTipo.Sucesso, "Informações buscadas com sucesso!");
     }
 
     private class SearchModel
