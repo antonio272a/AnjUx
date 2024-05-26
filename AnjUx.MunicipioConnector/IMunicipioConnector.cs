@@ -4,8 +4,8 @@ namespace AnjUx.MunicipioConnector
 {
     public interface IMunicipioConnector
     {
-        public Task<List<MunicipioDado>> GetPIB();
+        public Task<List<MunicipioDado>> GetPIB(int? ano = null, int? mes = null);
 
-        public Task<List<MunicipioDado>> GetPopulacao();
+        public Task<List<MunicipioDado>> GetPopulacao(int? ano = null, int? mes = null);
     }
 }
