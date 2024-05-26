@@ -5,12 +5,13 @@ using AnjUx.Shared.Extensions;
 using AnjUx.Shared.Models.Data;
 using AnjUx.Shared.Models.Requests;
 using AnjUx.Shared.Models.Response;
+using AnjUx.Shared.Models.Enums;
 
 namespace AnjUx.Server.Services
 {
     public class MunicipioDadoService(DBFactory? factory = null, string? nomeUsuario = null) : BaseDBService<MunicipioDado>(factory, nomeUsuario)
     {
-        public async Task<List<MunicipioDado>> ListarPorMunicipio(long? idMunicipio, TipoDado? tipo = null)
+        public async Task<List<MunicipioDado>> ListarPorMunicipio(long? idMunicipio, TipoDado? tipo = null, int? ano = null, Mes? mes = null)
         {
             QueryModel<MunicipioDado> query = new();
 
@@ -21,6 +22,12 @@ namespace AnjUx.Server.Services
 
             if (tipo.HasValue)
                 query.Filtros.Add(new Filtro(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.TipoDado), tipo));
+
+            if (ano.HasValue && ano > 0)
+                query.Filtros.Add(new(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.Ano), ano));
+
+            if (mes.HasValue)
+                query.Filtros.Add(new(FiltroTipo.And, OperadorTipo.Igual, query, nameof(MunicipioDado.Mes), mes));
 
             return await List(query);
         }
