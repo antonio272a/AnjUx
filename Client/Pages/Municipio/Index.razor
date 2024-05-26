@@ -1,6 +1,7 @@
 ﻿@attribute [HubIcon(Icon.City, "Municípios")]
 @inject MunicipioService municipioService
 @inject CoreNavBarStore navBarStore
+@inject CoreDialogService dialogService
 @inject CoreNotificationService notificationService
 
 <CoreCard>
@@ -55,10 +56,7 @@
     }
 
     private void BuscarReceitas(Municipio municipio)
-    {
-        municipioService.RodarBackground(async () => await municipioService.BuscarReceitas(municipio.ID));
-        notificationService.Notify(NotificacaoTipo.Sucesso, $"Iniciada Busca de Receitas do Município \"{municipio.Nome}\", você pode verificar o progresso na seção de Tarefas");
-    }
+        => dialogService.Open(typeof(AtualizarReceitas), $"Atualizar Receitas {municipio.FullName}", parameters: new { Municipio = municipio });
 
     private class SearchModel
     {

@@ -24,9 +24,9 @@ namespace AnjUx.Server.Controllers
         }
 
         [HttpGet("BuscarReceitas/{id}")]
-        public async Task<ActionResult> BuscarReceitas(long? id)
+        public async Task<ActionResult> BuscarReceitas(long? id, int? ano, int? mes)
         {
-            await Service.BuscarReceitas(id);
+            await Service.BuscarReceitas(id, ano, mes);
 
             return Sucesso(true);
         }

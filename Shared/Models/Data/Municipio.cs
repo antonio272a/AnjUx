@@ -47,5 +47,11 @@ namespace AnjUx.Shared.Models.Data
         }
 
         #endregion
+
+        #region Virtuals
+
+        public string FullName => $"{CodigoIBGE} - {Nome}";
+
+        #endregion
     }
 }

@@ -1,0 +1,43 @@
+﻿@using AnjUx.Shared.Extensions
+@attribute [PartialOnly]
+@inject CoreNotificationService notificationService
+@inject CoreDialogService dialogService
+@inject MunicipioService municipioService
+
+<CoreCard Modal>
+    <CoreForm Model="@Request">
+        <CoreRow>
+            <EditorFor Property="(model) => model.Ano" />
+            <EditorFor Property="(model) => model.Mes" Label="Mês" />
+        </CoreRow>
+        <CoreRow Actions>
+            <CoreButton ButtonType="ButtonType.Submit" Icon="Icon.Search" Click="BuscarReceitas" />
+        </CoreRow>
+    </CoreForm>
+</CoreCard>
+
+@code {
+    private RequestModel Request { get; set; } = new();
+
+    [Parameter]
+    public Municipio? Municipio { get; set; }
+
+    private class RequestModel
+    {
+        public int? Ano { get; set; }
+        public Mes? Mes { get; set; }
+    }
+
+    private void BuscarReceitas()
+    {
+        if (!Municipio.IsPersisted())
+        {
+            dialogService.Close();
+            return;
+        }
+
+        municipioService.RodarBackground(async () => await municipioService.BuscarReceitas(Municipio.ID, Request.Ano, (int?)Request.Mes));
+        notificationService.Notify(NotificacaoTipo.Sucesso, $"Iniciada Busca de Receitas do Município \"{Municipio.Nome}\", você pode verificar o progresso na seção de Tarefas");
+        dialogService.Close(true);
+    }
+}

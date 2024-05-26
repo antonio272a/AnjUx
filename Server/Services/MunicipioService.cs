@@ -29,7 +29,7 @@ namespace AnjUx.Server.Services
             return await List(query);
         }
 
-        public async Task<List<MunicipioDado>> BuscarReceitas(long? id)
+        public async Task<List<MunicipioDado>> BuscarReceitas(long? id, int? ano = null, int? mes = null)
         {
             var tarefaService = Resolve<TarefaService>();
             var municipioDadoService = Resolve<MunicipioDadoService>();
