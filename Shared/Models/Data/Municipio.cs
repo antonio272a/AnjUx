@@ -1,6 +1,7 @@
 ﻿using AnjUx.Shared.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +36,7 @@ namespace AnjUx.Shared.Models.Data
         }
 
         [DBField()]
+        [Display(Name = "Código IBGE")]
         public string? CodigoIBGE
         {
             get => codigoIBGE;

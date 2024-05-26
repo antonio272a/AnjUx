@@ -420,7 +420,7 @@ namespace AnjUx.ORM
 
         internal static string CamposParaString<T>(QueryModel<T> model, Type classe, string alias) where T: IDbModel
         {
-            List<PropertyInfo> props = classe.GetProperties().Where(prop => prop.GetCustomAttribute(typeof(NotMappedAttribute)) == null).ToList();
+            List<PropertyInfo> props = classe.GetProperties().Where(prop => prop.GetCustomAttribute(typeof(DBFieldAttribute)) != null).ToList();
 
             if (!model.UtilizarSerializaveis)
                 props = props.Where(prop => prop.GetCustomAttribute(typeof(SerializableAttribute)) == null).ToList();

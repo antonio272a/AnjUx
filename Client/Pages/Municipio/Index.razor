@@ -1,7 +1,33 @@
 ﻿@attribute [HubIcon(Icon.City, "Municípios")]
+@inject MunicipioService municipioService
+@inject CoreNavBarStore navBarStore
 
-<h3>Municipios</h3>
+<CoreCard>
+    <CoreDataGrid Data="@Municipios">
+        <Columns>
+            <CoreDataGridColumn Property="(model) => model.CodigoIBGE" />
+            <CoreDataGridColumn Property="(model) => model.Nome" />
+            <CoreDataGridColumn Property="(model) => model.UF" />
+        </Columns>
+    </CoreDataGrid>
+</CoreCard>
 
 @code {
+    private List<Municipio> Municipios { get; set; } = [];
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetMunicipios();
+
+        navBarStore.Titulo = "Municípios";
+
+        navBarStore.SetItens(new CoreNavBarItem(Icon.Sync, async () => await municipioService.AtualizarMunicipios(), "Atualizar Municípios"));
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task GetMunicipios()
+    {
+        Municipios = await municipioService.Listar() ?? [];
+    }
 }

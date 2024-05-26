@@ -1,6 +1,6 @@
 ﻿using AnjUx.Shared.Models.Data;
 using AnjUx.Shared.Models.Response;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace AnjUx.Server.Services
 {
@@ -16,7 +16,7 @@ namespace AnjUx.Server.Services
             if (response.IsSuccessStatusCode)
             {
                 string content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<MunicipioIBGE>>(content)!;
+                return JsonConvert.DeserializeObject<List<MunicipioIBGE>>(content)!;
             }
 
             string erro = await response.Content.ReadAsStringAsync();
