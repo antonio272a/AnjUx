@@ -24,8 +24,15 @@
 
         Botoes.Add(new BotaoAcao(Icon.Payments, "Atualizar Receitas", AtualizarReceitas, "Atualiza as Receitas de todos os Municípios (pode levar um tempo)"));
         Botoes.Add(new BotaoAcao(Icon.Users, "Atualizar Est. Populacionais", AtualizarEstivativasPopulacionais, "Atualiza as Estimativas Populacionais de todos os Municípios (pode levar um tempo)"));
+        Botoes.Add(new BotaoAcao(Icon.City, "Atualizar Munípios", AtualizarMunicipios, "Atualiza o cadastro de Municípios (pode levar um tempo)"));
 
         return base.OnInitializedAsync();
+    }
+    
+    private void AtualizarMunicipios()
+    {
+        municipioService.RodarBackground(async () => await municipioService.AtualizarMunicipios());
+        notificationService.Notify(NotificacaoTipo.Sucesso, "Foi criada uma Tarefa para atualização dos municípios, você pode conferir na seção de Tarefas.");
     }
 
     private void AtualizarReceitas()

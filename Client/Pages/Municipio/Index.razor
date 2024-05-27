@@ -41,9 +41,15 @@
 
         navBarStore.Titulo = "Municípios";
 
-        navBarStore.SetItens(new CoreNavBarItem(Icon.Sync, async () => await municipioService.AtualizarMunicipios(), "Atualizar Municípios"));
+        navBarStore.SetItens(new CoreNavBarItem(Icon.Sync, AtualizarMunicipios, "Atualizar Municípios"));
 
         await base.OnInitializedAsync();
+    }
+
+    private void AtualizarMunicipios()
+    {
+        municipioService.RodarBackground(async () => await municipioService.AtualizarMunicipios());
+        notificationService.Notify(NotificacaoTipo.Sucesso, "Foi criada uma Tarefa para atualização dos municípios, você pode conferir na seção de Tarefas.");
     }
 
     private async Task GetMunicipios()
