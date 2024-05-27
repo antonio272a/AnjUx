@@ -37,7 +37,7 @@
 
     private void AtualizarReceitas()
     {
-        municipioService.RodarBackground(async () => await municipioService.AtualizarTodasReceitas());
+        municipioService.RodarBackground(async () => await municipioService.AtualizarMunicipios());
         notificationService.Notify(NotificacaoTipo.Sucesso, "Foi criada uma tarefa para atualizar as Receitas de todos os Municípios, você pode conferir o resultado na seção de Tarefas");
 
     }

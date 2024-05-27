@@ -7,7 +7,7 @@ namespace AnjUx.Client.Services
         protected override string BaseUrl => "api/municipio";
 
         public async Task<bool> AtualizarMunicipios()
-            => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarMunicipios");
+            => await MakeRequestAsync<bool>(HttpMethod.Get, "AtualizarMunicipios", notify: false, disableLoading: true);
 
         public async Task<List<Municipio>?> Buscar(string? termo)
             => await MakeRequestAsync<List<Municipio>>(HttpMethod.Get, $"Buscar?termo={termo}");

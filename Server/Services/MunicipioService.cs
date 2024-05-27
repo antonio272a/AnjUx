@@ -221,11 +221,15 @@ namespace AnjUx.Server.Services
 
         public async Task AtualizarMunicipios()
         {
+            TarefaService tarefaService = Resolve<TarefaService>();
+            
             List<Municipio> municipiosSalvos = await ListAll();
 
             Dictionary<string, Municipio> dictMunicipios = municipiosSalvos.ToDictionary(m => m.CodigoIBGE!); 
 
             List<MunicipioIBGE> municipiosIbge = await new IBGEService().GetMunicipios();
+
+            Tarefa tarefa = await tarefaService.NovaTarefa("Atualizar cadastro de Municípios");
 
             DBFactory!.NovaTransacao(out bool minhaTransacao);
             
@@ -252,11 +256,14 @@ namespace AnjUx.Server.Services
                     await Save(municipio);
                 }
 
+                await tarefaService.FinalizarTarefa(tarefa);
+
                 DBFactory.CommitTransacao(minhaTransacao);
             }
             catch (Exception ex)
             {
                 DBFactory.RollbackTransacao(minhaTransacao);
+                await tarefaService.FalharTarefa(tarefa, ex);
                 throw ex.ReThrow();
             }
             finally
